@@ -111,6 +111,43 @@ export interface BlogFormData {
   status: 'draft' | 'published' | 'archived';
 }
 
+export interface PricingTier {
+  name: string;
+  price: number;
+  duration: string;
+  features: string[];
+  popular?: boolean;
+}
+
+export interface Service {
+  id: number;
+  name: string;
+  slug: string;
+  icon: string;
+  tagline: string;
+  description: string;
+  features: string[];
+  pricingTiers: PricingTier[];
+  deliveryTime: string;
+  popular: boolean;
+  active: boolean;
+  created_at?: string;
+  updated_at?: string;
+  testimonialIds?: number[];
+}
+
+export interface ServiceFormData {
+  name: string;
+  tagline: string;
+  description: string;
+  icon: string;
+  features: string[];
+  pricingTiers: PricingTier[];
+  deliveryTime: string;
+  popular: boolean;
+  active: boolean;
+}
+
 export interface DashboardStats {
   total_users: number;
   total_blogs: number;
@@ -210,6 +247,36 @@ export const adminApi = {
       }
 
       return response.json();
+    },
+  },
+
+  services: {
+    getAll: async () => {
+      return request<ApiResponse<Service[]>>('/api/services.php');
+    },
+
+    getById: async (id: number) => {
+      return request<ApiResponse<Service>>(`/api/services.php/${id}`);
+    },
+
+    create: async (data: ServiceFormData) => {
+      return request<ApiResponse<{ id: number }>>('/api/services.php', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+
+    update: async (id: number, data: ServiceFormData) => {
+      return request<ApiResponse>(`/api/services.php/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+
+    delete: async (id: number) => {
+      return request<ApiResponse>(`/api/services.php/${id}`, {
+        method: 'DELETE',
+      });
     },
   },
 };
