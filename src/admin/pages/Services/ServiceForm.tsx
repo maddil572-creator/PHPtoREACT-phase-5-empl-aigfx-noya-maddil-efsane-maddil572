@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Plus, X, Trash2 } from 'lucide-react';
+import { Loader as Loader2, Plus, X, Trash2 } from 'lucide-react';
 import { Service, PricingTier } from '../../utils/api';
 import { serviceSchema, ServiceFormValues } from '../../utils/validation';
 import { useCreateService, useUpdateService } from '../../hooks/useServices';
