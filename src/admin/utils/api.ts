@@ -192,6 +192,31 @@ export interface PortfolioFormData {
   status: 'active' | 'archived' | 'draft';
 }
 
+export interface Testimonial {
+  id: number;
+  name: string;
+  role: string;
+  company?: string;
+  content: string;
+  rating: number;
+  avatar?: string;
+  featured: boolean;
+  status: 'active' | 'archived' | 'pending';
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface TestimonialFormData {
+  name: string;
+  role: string;
+  company?: string;
+  content: string;
+  rating: number;
+  avatar?: string;
+  featured: boolean;
+  status: 'active' | 'archived' | 'pending';
+}
+
 export interface DashboardStats {
   total_users: number;
   total_blogs: number;
@@ -354,6 +379,57 @@ export const adminApi = {
     },
 
     uploadImage: async (file: File) => {
+      const token = getAuthToken();
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${API_BASE_URL}/api/uploads.php`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new AdminApiError(error.error || 'Upload failed', response.status);
+      }
+
+      return response.json();
+    },
+  },
+
+  testimonials: {
+    getAll: async () => {
+      return request<ApiResponse<Testimonial[]>>('/api/testimonials.php');
+    },
+
+    getById: async (id: number) => {
+      return request<ApiResponse<Testimonial>>(`/api/testimonials.php/${id}`);
+    },
+
+    create: async (data: TestimonialFormData) => {
+      return request<ApiResponse<{ id: number }>>('/api/testimonials.php', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+
+    update: async (id: number, data: TestimonialFormData) => {
+      return request<ApiResponse>(`/api/testimonials.php/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+
+    delete: async (id: number) => {
+      return request<ApiResponse>(`/api/testimonials.php/${id}`, {
+        method: 'DELETE',
+      });
+    },
+
+    uploadAvatar: async (file: File) => {
       const token = getAuthToken();
       const formData = new FormData();
       formData.append('file', file);

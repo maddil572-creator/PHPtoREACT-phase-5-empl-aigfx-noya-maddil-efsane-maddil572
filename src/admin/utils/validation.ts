@@ -165,6 +165,49 @@ export const portfolioSchema = z.object({
 
 export type PortfolioFormValues = z.infer<typeof portfolioSchema>;
 
+export const testimonialSchema = z.object({
+  name: z
+    .string()
+    .min(3, 'Name must be at least 3 characters')
+    .max(100, 'Name must be less than 100 characters'),
+
+  role: z
+    .string()
+    .min(2, 'Role must be at least 2 characters')
+    .max(100, 'Role must be less than 100 characters'),
+
+  company: z
+    .string()
+    .max(100, 'Company name must be less than 100 characters')
+    .optional(),
+
+  content: z
+    .string()
+    .min(30, 'Content must be at least 30 characters')
+    .max(500, 'Content must be less than 500 characters'),
+
+  rating: z
+    .number()
+    .min(1, 'Rating must be at least 1')
+    .max(5, 'Rating must be at most 5'),
+
+  avatar: z
+    .string()
+    .url('Must be a valid URL')
+    .or(z.string().length(0))
+    .optional(),
+
+  featured: z
+    .boolean()
+    .default(false),
+
+  status: z
+    .enum(['active', 'archived', 'pending'])
+    .default('active'),
+});
+
+export type TestimonialFormValues = z.infer<typeof testimonialSchema>;
+
 export const loginSchema = z.object({
   email: z
     .string()
