@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GlobalSettingsProvider } from "@/components/global-settings-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
@@ -28,6 +29,7 @@ import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import { Login, Register, Dashboard as UserDashboard, Profile as UserProfile, Tokens } from "./user/pages";
 
 const queryClient = new QueryClient();
 
@@ -37,8 +39,9 @@ const App = () => (
       <ThemeProvider defaultTheme="light" storageKey="adil-portfolio-theme">
         <GlobalSettingsProvider>
           <LanguageProvider>
-            <TooltipProvider>
-              <ErrorBoundary>
+            <AuthProvider>
+              <TooltipProvider>
+                <ErrorBoundary>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -57,7 +60,12 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/page/:slug" element={<DynamicPageRenderer />} />
+                <Route path="/user/login" element={<Login />} />
+                <Route path="/user/register" element={<Register />} />
+                <Route path="/user/dashboard" element={<UserDashboard />} />
+                <Route path="/user/profile" element={<UserProfile />} />
+                <Route path="/user/tokens" element={<Tokens />} />
+                <Route path="/page/:slug" element={<DynamicPageRenderer />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Footer />
@@ -65,8 +73,9 @@ const App = () => (
               <FloatingWhatsApp />
               <AnalyticsConsentModal />
             </BrowserRouter>
-              </ErrorBoundary>
-            </TooltipProvider>
+                </ErrorBoundary>
+              </TooltipProvider>
+            </AuthProvider>
           </LanguageProvider>
         </GlobalSettingsProvider>
       </ThemeProvider>
