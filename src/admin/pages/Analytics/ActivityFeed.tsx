@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ActivityItem } from "../../hooks/useAnalytics";
-import { UserPlus, Mail, Eye, TrendingUp, AlertCircle } from "lucide-react";
+import { UserPlus, Mail, Eye, TrendingUp, CircleAlert as AlertCircle } from "lucide-react";
 
 interface ActivityFeedProps {
   activities: ActivityItem[];
