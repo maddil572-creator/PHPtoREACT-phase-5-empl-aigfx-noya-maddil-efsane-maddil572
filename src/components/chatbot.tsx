@@ -304,7 +304,7 @@ Would you like to schedule a free 15-minute consultation call?`
         </Button>
         
         {!isOpen && (
-          <div className="absolute -top-2 -right-2 w-6 h-6 bg-youtube-red rounded-full flex items-center justify-center animate-pulse">
+          <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center animate-pulse shadow-lg">
             <span className="text-white text-xs font-bold">AI</span>
           </div>
         )}
