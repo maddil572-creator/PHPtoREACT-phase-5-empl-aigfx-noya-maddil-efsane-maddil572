@@ -1,3 +1,5 @@
+export type Role = 'user' | 'editor' | 'viewer' | 'admin';
+
 export interface User {
   id: string;
   email: string;
@@ -6,6 +8,7 @@ export interface User {
   joinDate: string;
   membershipTier: string;
   verified: boolean;
+  role: Role;
 }
 
 export interface TokenInfo {
@@ -93,4 +96,28 @@ export interface RegisterData {
 export interface LoginData {
   email: string;
   password: string;
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  role: Role;
+  verified: boolean;
+  lastLogin: string | null;
+  joinDate: string;
+  tokenBalance: number;
+  totalEarned: number;
+  totalOrders: number;
+}
+
+export interface UserListResponse {
+  users: AdminUser[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
 }

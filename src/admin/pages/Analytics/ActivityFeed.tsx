@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ActivityItem } from "../../hooks/useAnalytics";
-import { UserPlus, Mail, Eye, TrendingUp, CircleAlert as AlertCircle } from "lucide-react";
+import { UserPlus, Mail, Eye, TrendingUp, CircleAlert as AlertCircle, Shield, UserCog } from "lucide-react";
 
 interface ActivityFeedProps {
   activities: ActivityItem[];
@@ -11,6 +11,8 @@ const iconMap: Record<string, React.ReactNode> = {
   "fas fa-user-plus": <UserPlus className="h-4 w-4" />,
   "fas fa-envelope": <Mail className="h-4 w-4" />,
   "fas fa-eye": <Eye className="h-4 w-4" />,
+  "fas fa-shield": <Shield className="h-4 w-4" />,
+  "fas fa-user-cog": <UserCog className="h-4 w-4" />,
 };
 
 function getActivityIcon(iconClass: string) {

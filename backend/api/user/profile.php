@@ -38,7 +38,7 @@ try {
 
     // Get user data
     $stmt = $conn->prepare("
-        SELECT u.id, u.email, u.name, u.avatar, u.join_date, u.membership_tier, u.verified,
+        SELECT u.id, u.email, u.name, u.avatar, u.join_date, u.membership_tier, u.verified, u.role,
                ut.balance, ut.total_earned, ut.total_spent,
                us.current_streak, us.longest_streak, us.last_check_in,
                r.referral_code
@@ -122,7 +122,8 @@ try {
             'avatar' => $user_data['avatar'] ?? '/api/placeholder/120/120',
             'joinDate' => $user_data['join_date'],
             'membershipTier' => ucfirst($user_data['membership_tier']),
-            'verified' => (bool)$user_data['verified']
+            'verified' => (bool)$user_data['verified'],
+            'role' => $user_data['role']
         ],
         'tokens' => [
             'balance' => (int)$user_data['balance'],

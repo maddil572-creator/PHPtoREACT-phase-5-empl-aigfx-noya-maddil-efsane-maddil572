@@ -9,6 +9,7 @@ import { GlobalSettingsProvider } from "@/components/global-settings-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { ProtectedRoute } from "@/components/protected-route";
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
 import { Chatbot } from "@/components/chatbot";
@@ -59,12 +60,12 @@ const App = () => (
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard" element={<ProtectedRoute requiredRoles={['admin', 'editor', 'viewer']}><Dashboard /></ProtectedRoute>} />
                 <Route path="/user/login" element={<Login />} />
                 <Route path="/user/register" element={<Register />} />
-                <Route path="/user/dashboard" element={<UserDashboard />} />
-                <Route path="/user/profile" element={<UserProfile />} />
-                <Route path="/user/tokens" element={<Tokens />} />
+                <Route path="/user/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
+                <Route path="/user/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                <Route path="/user/tokens" element={<ProtectedRoute><Tokens /></ProtectedRoute>} />
                 <Route path="/page/:slug" element={<DynamicPageRenderer />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

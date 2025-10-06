@@ -1,10 +1,11 @@
 import { useState } from "react"
-import { Link, useLocation } from "react-router-dom"
-import { Menu, X, Play, Palette, User, Phone, CircleHelp as HelpCircle, Briefcase, FileText, Star } from "lucide-react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Menu, X, Play, Palette, User, Phone, CircleHelp as HelpCircle, Briefcase, FileText, Star, LogIn, LogOut, LayoutDashboard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useGlobalSettings } from "@/components/global-settings-provider"
+import { useAuth } from "@/contexts/AuthContext"
 import { cn } from "@/lib/utils"
 
 const navigation = [
@@ -21,7 +22,14 @@ const navigation = [
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
   const { settings } = useGlobalSettings()
+  const { isAuthenticated, user, logout, hasAnyRole } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -64,11 +72,42 @@ export function Navigation() {
           <div className="hidden md:flex items-center space-x-4">
             <LanguageSwitcher />
             <ThemeToggle />
-            <Link to="/contact">
-              <Button className="bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-medium">
-                {settings?.content?.headerCtaText || 'Hire Me Now'}
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                {hasAnyRole(['admin', 'editor', 'viewer']) && (
+                  <Link to="/dashboard">
+                    <Button variant="outline" size="sm">
+                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                )}
+                <Link to="/user/dashboard">
+                  <Button variant="outline" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    {user?.name}
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/user/login">
+                  <Button variant="outline" size="sm">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/contact">
+                  <Button className="bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-medium">
+                    {settings?.content?.headerCtaText || 'Hire Me Now'}
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -112,12 +151,43 @@ export function Navigation() {
                 </Link>
               )
             })}
-            <div className="pt-4 px-4">
-              <Link to="/contact">
-                <Button className="w-full bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-medium">
-                  {settings?.content?.headerCtaText || 'Hire Me Now'}
-                </Button>
-              </Link>
+            <div className="pt-4 px-4 space-y-2">
+              {isAuthenticated ? (
+                <>
+                  {hasAnyRole(['admin', 'editor', 'viewer']) && (
+                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        <LayoutDashboard className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  )}
+                  <Link to="/user/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">
+                      <User className="h-4 w-4 mr-2" />
+                      {user?.name}
+                    </Button>
+                  </Link>
+                  <Button variant="outline" className="w-full" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/user/login" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/contact" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-medium">
+                      {settings?.content?.headerCtaText || 'Hire Me Now'}
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

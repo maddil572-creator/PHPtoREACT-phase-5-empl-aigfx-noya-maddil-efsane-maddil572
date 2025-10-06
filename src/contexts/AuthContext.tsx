@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { User } from '../user/types';
+import type { User, Role } from '../user/types';
 import { authService } from '../user/services/authService';
 
 interface AuthContextType {
@@ -9,6 +9,9 @@ interface AuthContextType {
   isLoading: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
+  hasRole: (role: Role) => boolean;
+  hasAnyRole: (roles: Role[]) => boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,6 +57,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const hasRole = (role: Role): boolean => {
+    return user?.role === role;
+  };
+
+  const hasAnyRole = (roles: Role[]): boolean => {
+    return !!user?.role && roles.includes(user.role);
+  };
+
+  const isAdmin = user?.role === 'admin';
+
   return (
     <AuthContext.Provider
       value={{
@@ -63,6 +76,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         login,
         logout,
+        hasRole,
+        hasAnyRole,
+        isAdmin,
       }}
     >
       {children}
