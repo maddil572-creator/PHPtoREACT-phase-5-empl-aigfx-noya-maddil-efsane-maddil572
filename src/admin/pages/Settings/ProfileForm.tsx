@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Save, Upload, Lock } from 'lucide-react';
+import { Loader as Loader2, Save, Upload, Lock } from 'lucide-react';
 import { useProfile, useUpdateProfile, useUpdatePassword, useUploadProfileAvatar } from '../../hooks/useSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Loader2, Upload, Save } from 'lucide-react';
+import { Loader as Loader2, Upload, Save } from 'lucide-react';
 import { useSettings, useBulkUpdateSettings, useUploadSettingsFile } from '../../hooks/useSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
