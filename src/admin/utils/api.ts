@@ -261,6 +261,41 @@ export interface AdminProfile {
   created_at: string;
 }
 
+export interface MediaFile {
+  id: number;
+  filename: string;
+  originalName: string;
+  url: string;
+  mimeType: string;
+  fileSize: number;
+  width?: number;
+  height?: number;
+  altText?: string;
+  caption?: string;
+  uploadedBy: number;
+  uploadedAt: string;
+  updatedAt?: string;
+}
+
+export interface MediaLibraryResponse {
+  files: MediaFile[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface MediaUploadData {
+  file: File;
+  altText?: string;
+  caption?: string;
+}
+
+export interface MediaUpdateData {
+  altText?: string;
+  caption?: string;
+}
+
 export interface DashboardStats {
   total_users: number;
   total_blogs: number;
@@ -582,6 +617,58 @@ export const adminApi = {
       }
 
       return response.json();
+    },
+  },
+
+  media: {
+    getAll: async (page: number = 1, limit: number = 20, type?: string) => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+      if (type) params.append('type', type);
+
+      return request<MediaLibraryResponse>(`/api/uploads.php?${params.toString()}`);
+    },
+
+    getById: async (id: number) => {
+      return request<ApiResponse<{ file: MediaFile }>>(`/api/uploads.php/${id}`);
+    },
+
+    upload: async (data: MediaUploadData) => {
+      const token = getAuthToken();
+      const formData = new FormData();
+      formData.append('file', data.file);
+      if (data.altText) formData.append('altText', data.altText);
+      if (data.caption) formData.append('caption', data.caption);
+
+      const response = await fetch(`${API_BASE_URL}/api/uploads.php`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new AdminApiError(error.error || 'Upload failed', response.status);
+      }
+
+      return response.json();
+    },
+
+    update: async (id: number, data: MediaUpdateData) => {
+      return request<ApiResponse>(`/api/uploads.php/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+
+    delete: async (id: number) => {
+      return request<ApiResponse>(`/api/uploads.php/${id}`, {
+        method: 'DELETE',
+      });
     },
   },
 };
