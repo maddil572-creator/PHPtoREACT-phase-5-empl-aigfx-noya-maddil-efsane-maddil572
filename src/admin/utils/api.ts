@@ -148,6 +148,50 @@ export interface ServiceFormData {
   active: boolean;
 }
 
+export interface Portfolio {
+  id: number;
+  title: string;
+  slug: string;
+  category: string;
+  description: string;
+  longDescription?: string;
+  client?: string;
+  completionDate?: string;
+  featuredImage: string;
+  images: string[];
+  beforeImage?: string;
+  afterImage?: string;
+  tags: string[];
+  technologies?: string[];
+  projectUrl?: string;
+  results?: {
+    metric1?: string;
+    metric2?: string;
+    metric3?: string;
+  };
+  featured: boolean;
+  status: 'active' | 'archived' | 'draft';
+  views: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface PortfolioFormData {
+  title: string;
+  category: string;
+  description: string;
+  longDescription?: string;
+  client?: string;
+  completionDate?: string;
+  featuredImage: string;
+  images: string[];
+  tags: string[];
+  technologies?: string[];
+  projectUrl?: string;
+  featured: boolean;
+  status: 'active' | 'archived' | 'draft';
+}
+
 export interface DashboardStats {
   total_users: number;
   total_blogs: number;
@@ -277,6 +321,57 @@ export const adminApi = {
       return request<ApiResponse>(`/api/services.php/${id}`, {
         method: 'DELETE',
       });
+    },
+  },
+
+  portfolio: {
+    getAll: async () => {
+      return request<ApiResponse<Portfolio[]>>('/api/portfolio.php');
+    },
+
+    getById: async (id: number) => {
+      return request<ApiResponse<Portfolio>>(`/api/portfolio.php/${id}`);
+    },
+
+    create: async (data: PortfolioFormData) => {
+      return request<ApiResponse<{ id: number }>>('/api/portfolio.php', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+
+    update: async (id: number, data: PortfolioFormData) => {
+      return request<ApiResponse>(`/api/portfolio.php/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+
+    delete: async (id: number) => {
+      return request<ApiResponse>(`/api/portfolio.php/${id}`, {
+        method: 'DELETE',
+      });
+    },
+
+    uploadImage: async (file: File) => {
+      const token = getAuthToken();
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${API_BASE_URL}/api/uploads.php`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new AdminApiError(error.error || 'Upload failed', response.status);
+      }
+
+      return response.json();
     },
   },
 };
