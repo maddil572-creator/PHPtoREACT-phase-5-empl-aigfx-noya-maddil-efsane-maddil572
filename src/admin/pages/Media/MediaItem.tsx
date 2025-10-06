@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Copy, Download, Eye, FileText, Image, MoreVertical, Trash2, Video } from 'lucide-react';
+import { Copy, Download, Eye, FileText, Image, MoveVertical as MoreVertical, Trash2, Video } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface MediaItemProps {
