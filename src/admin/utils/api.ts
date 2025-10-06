@@ -217,6 +217,50 @@ export interface TestimonialFormData {
   status: 'active' | 'archived' | 'pending';
 }
 
+export interface Setting {
+  id: number;
+  key: string;
+  value: string;
+  type: 'text' | 'number' | 'boolean' | 'json' | 'url' | 'email' | 'color';
+  category: 'general' | 'seo' | 'appearance' | 'social' | 'api';
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SettingsFormData {
+  site_name?: string;
+  site_tagline?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
+  logo_url?: string;
+  favicon_url?: string;
+  primary_color?: string;
+  secondary_color?: string;
+  dark_mode_enabled?: boolean;
+}
+
+export interface ProfileFormData {
+  name: string;
+  email: string;
+  currentPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+  avatar?: string;
+}
+
+export interface AdminProfile {
+  id: number;
+  email: string;
+  name: string;
+  role: string;
+  avatar?: string;
+  created_at: string;
+}
+
 export interface DashboardStats {
   total_users: number;
   total_blogs: number;
@@ -426,6 +470,96 @@ export const adminApi = {
     delete: async (id: number) => {
       return request<ApiResponse>(`/api/testimonials.php/${id}`, {
         method: 'DELETE',
+      });
+    },
+
+    uploadAvatar: async (file: File) => {
+      const token = getAuthToken();
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${API_BASE_URL}/api/uploads.php`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new AdminApiError(error.error || 'Upload failed', response.status);
+      }
+
+      return response.json();
+    },
+  },
+
+  settings: {
+    getAll: async () => {
+      return request<ApiResponse<Setting[]>>('/api/settings.php');
+    },
+
+    getByCategory: async (category: string) => {
+      return request<ApiResponse<Setting[]>>(`/api/settings.php/category/${category}`);
+    },
+
+    get: async (key: string) => {
+      return request<ApiResponse<{ value: string }>>(`/api/settings.php/${key}`);
+    },
+
+    update: async (key: string, value: string, type: string = 'text') => {
+      return request<ApiResponse>(`/api/settings.php/${key}`, {
+        method: 'PUT',
+        body: JSON.stringify({ value, type }),
+      });
+    },
+
+    bulkUpdate: async (settings: Record<string, any>) => {
+      return request<ApiResponse>('/api/settings.php/bulk', {
+        method: 'PUT',
+        body: JSON.stringify({ settings }),
+      });
+    },
+
+    uploadFile: async (file: File) => {
+      const token = getAuthToken();
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${API_BASE_URL}/api/uploads.php`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new AdminApiError(error.error || 'Upload failed', response.status);
+      }
+
+      return response.json();
+    },
+  },
+
+  profile: {
+    get: async () => {
+      return request<ApiResponse<AdminProfile>>('/api/user/profile.php');
+    },
+
+    update: async (data: ProfileFormData) => {
+      return request<ApiResponse>('/api/user/profile.php', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+
+    updatePassword: async (currentPassword: string, newPassword: string) => {
+      return request<ApiResponse>('/api/user/profile.php/password', {
+        method: 'PUT',
+        body: JSON.stringify({ currentPassword, newPassword }),
       });
     },
 
