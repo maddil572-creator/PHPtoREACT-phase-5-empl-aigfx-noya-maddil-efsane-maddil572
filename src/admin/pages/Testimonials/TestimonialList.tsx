@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { Star, Search, Filter, Plus, Edit, Trash2, User } from 'lucide-react';
+import { Star, Search, Filter, Plus, CreditCard as Edit, Trash2, User } from 'lucide-react';
 import { useTestimonials, useDeleteTestimonial } from '../../hooks/useTestimonials';
 import { Testimonial } from '../../utils/api';
 import { Button } from '@/components/ui/button';
