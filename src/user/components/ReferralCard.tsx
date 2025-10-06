@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, Copy, CheckCircle2 } from 'lucide-react';
+import { Users, Copy, CircleCheck as CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import type { ReferralInfo } from '../types';

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { authService } from '../services/authService';
 import { registerSchema, type RegisterFormData } from '../utils/validation';
-import { Loader2 } from 'lucide-react';
+import { Loader as Loader2 } from 'lucide-react';
 
 export default function Register() {
   const navigate = useNavigate();

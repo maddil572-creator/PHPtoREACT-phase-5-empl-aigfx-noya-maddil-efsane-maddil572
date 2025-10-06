@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { authService } from '../services/authService';
 import { loginSchema, type LoginFormData } from '../utils/validation';
-import { Loader2 } from 'lucide-react';
+import { Loader as Loader2 } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
