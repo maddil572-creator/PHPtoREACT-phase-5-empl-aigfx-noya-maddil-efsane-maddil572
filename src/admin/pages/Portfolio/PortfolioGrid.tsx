@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { Loader2, Plus, Edit2, Trash2, Eye, Star, Archive } from 'lucide-react';
+import { Loader as Loader2, Plus, CreditCard as Edit2, Trash2, Eye, Star, Archive } from 'lucide-react';
 import { usePortfolios, useDeletePortfolio } from '../../hooks/usePortfolio';
 import { Portfolio } from '../../utils/api';
 import { Button } from '@/components/ui/button';

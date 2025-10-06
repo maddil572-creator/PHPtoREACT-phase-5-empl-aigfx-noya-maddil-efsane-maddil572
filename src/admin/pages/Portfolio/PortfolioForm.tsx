@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Plus, X, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Loader as Loader2, Plus, X, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 import { Portfolio, adminApi } from '../../utils/api';
 import { portfolioSchema, PortfolioFormValues } from '../../utils/validation';
 import { useCreatePortfolio, useUpdatePortfolio } from '../../hooks/usePortfolio';
