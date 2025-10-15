@@ -19,7 +19,8 @@ import { AnalyticsConsentModal } from "@/components/analytics-consent-modal";
 import { ExitIntentPopup } from "@/components/exit-intent-popup";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { DynamicPageRenderer } from "@/components/dynamic-page-renderer";
-import { DynamicFavicon } from "@/components/dynamic-favicon";
+import { DynamicFavicon } from "@/components/dynamic-favicon"
+import { DynamicTheme } from "@/components/DynamicTheme";
 import { ApiTest } from "@/components/ApiTest";
 import Home from "./pages/Home";
 import Portfolio from "./pages/Portfolio";

@@ -1,23 +1,30 @@
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Menu, X, Play, Palette, User, Phone, CircleHelp as HelpCircle, Briefcase, FileText, Star, LogIn, LogOut, LayoutDashboard } from "lucide-react"
+import { Menu, X, Play, Palette, User, Phone, CircleHelp as HelpCircle, Briefcase, FileText, Star, LogIn, LogOut, LayoutDashboard, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useGlobalSettings } from "@/components/global-settings-provider"
 import { useAuth } from "@/contexts/AuthContext"
 import { useHomepageContent } from "@/hooks/useHomepageContent"
 import { useSiteLinks } from "@/hooks/useSiteLinks"
+import { useLayoutConfig, DEFAULT_HEADER_CONFIG } from "@/hooks/useLayoutConfig"
 import { cn } from "@/lib/utils"
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const location = useLocation()
   const navigate = useNavigate()
   const { settings } = useGlobalSettings()
   const { isAuthenticated, user, logout, hasAnyRole } = useAuth()
   const { getContent, loading } = useHomepageContent()
   const { links } = useSiteLinks()
+  const { headerConfig, headerMenuItems, loading: layoutLoading } = useLayoutConfig()
+  
+  // Use layout config with fallbacks
+  const config = headerConfig || DEFAULT_HEADER_CONFIG
 
   const navigation = [
     { name: "Home", href: links.home, icon: Play },
@@ -35,8 +42,33 @@ export function Navigation() {
     navigate('/')
   }
 
+  // Don't render header if disabled
+  if (!config.show_header) {
+    return null;
+  }
+
+  const headerClasses = cn(
+    "top-0 left-0 right-0 z-50 border-b border-border",
+    {
+      "fixed": config.header_position === "fixed" || config.header_position === "sticky",
+      "sticky": config.header_position === "sticky",
+      "relative": config.header_position === "static",
+      "bg-background/80 backdrop-blur-md": config.header_background === "transparent",
+      "bg-background": config.header_background === "solid",
+      "bg-gradient-to-r from-primary/10 to-secondary/10": config.header_background === "gradient",
+    }
+  );
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <header className={headerClasses} style={{ height: `${config.header_height}px` }}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -74,8 +106,35 @@ export function Navigation() {
 
           {/* Desktop CTA & Theme Toggle */}
           <div className="hidden md:flex items-center space-x-4">
-            <LanguageSwitcher />
-            <ThemeToggle />
+            {/* Search Bar */}
+            {config.show_search && (
+              <form onSubmit={handleSearch} className="relative">
+                <Input
+                  type="search"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-48 pl-10"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </form>
+            )}
+            
+            {/* Additional Header Menu Items */}
+            {headerMenuItems?.map((item, index) => (
+              <Link key={index} to={item.url}>
+                <Button 
+                  variant={item.style === 'button' ? 'default' : item.style === 'highlight' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className={item.style === 'highlight' ? 'bg-gradient-youtube text-white hover:shadow-glow' : ''}
+                >
+                  {item.text}
+                </Button>
+              </Link>
+            ))}
+            
+            {config.show_language_switcher && <LanguageSwitcher />}
+            {config.show_theme_toggle && <ThemeToggle />}
             {isAuthenticated ? (
               <>
                 {hasAnyRole(['admin', 'editor', 'viewer']) && (

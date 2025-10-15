@@ -14,7 +14,7 @@ import {
   ArrowUpRight, ArrowDownRight, CheckCircle, Clock,
   LogOut, Settings as SettingsIcon, Home, FileText,
   Image, MessageSquare, Star, Users as UsersIcon,
-  Palette, Globe, BarChart3
+  Palette, Globe, BarChart3, Layout, Play, Hash, Brush
 } from "lucide-react"
 import { SEOHead } from "@/components/seo-head"
 import { HomepageManager } from "@/admin/pages/Homepage"
@@ -27,6 +27,10 @@ import { UserList } from "@/admin/pages/Users"
 import { MediaLibrary } from "@/admin/pages/Media"
 import { SettingsForm } from "@/admin/pages/Settings"
 import { AnalyticsOverview } from "@/admin/pages/Analytics"
+import { LayoutManager } from "@/admin/pages/Layout"
+import { CarouselManager } from "@/admin/pages/Carousels"
+import { TagManager } from "@/admin/pages/Tags"
+import { AppearanceManager } from "@/admin/pages/Appearance"
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -152,7 +156,7 @@ export default function Dashboard() {
 
             {/* Admin Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-10">
+              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-14">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
                   <span className="hidden sm:inline">Overview</span>
@@ -188,6 +192,22 @@ export default function Dashboard() {
                 <TabsTrigger value="media" className="flex items-center gap-2">
                   <Image className="h-4 w-4" />
                   <span className="hidden sm:inline">Media</span>
+                </TabsTrigger>
+                <TabsTrigger value="layout" className="flex items-center gap-2">
+                  <Layout className="h-4 w-4" />
+                  <span className="hidden sm:inline">Layout</span>
+                </TabsTrigger>
+                <TabsTrigger value="carousels" className="flex items-center gap-2">
+                  <Play className="h-4 w-4" />
+                  <span className="hidden sm:inline">Carousels</span>
+                </TabsTrigger>
+                <TabsTrigger value="tags" className="flex items-center gap-2">
+                  <Hash className="h-4 w-4" />
+                  <span className="hidden sm:inline">Tags</span>
+                </TabsTrigger>
+                <TabsTrigger value="appearance" className="flex items-center gap-2">
+                  <Brush className="h-4 w-4" />
+                  <span className="hidden sm:inline">Appearance</span>
                 </TabsTrigger>
                 <TabsTrigger value="settings" className="flex items-center gap-2">
                   <Palette className="h-4 w-4" />
@@ -230,7 +250,23 @@ export default function Dashboard() {
               <TabsContent value="media">
                 <MediaLibrary />
               </TabsContent>
-
+              
+              <TabsContent value="layout">
+                <LayoutManager />
+              </TabsContent>
+              
+              <TabsContent value="carousels">
+                <CarouselManager />
+              </TabsContent>
+              
+              <TabsContent value="tags">
+                <TagManager />
+              </TabsContent>
+              
+              <TabsContent value="appearance">
+                <AppearanceManager />
+              </TabsContent>
+              
               <TabsContent value="settings">
                 <SettingsForm />
               </TabsContent>

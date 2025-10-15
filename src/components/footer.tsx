@@ -1,4 +1,4 @@
-import { Mail, Phone, Youtube, Facebook, Instagram, Linkedin } from "lucide-react"
+import { Mail, Phone, Youtube, Facebook, Instagram, Linkedin, ArrowUp } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -6,10 +6,21 @@ import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useHomepageContent } from "@/hooks/useHomepageContent"
 import { useSiteLinks } from "@/hooks/useSiteLinks"
+import { useLayoutConfig, DEFAULT_FOOTER_CONFIG } from "@/hooks/useLayoutConfig"
+import { cn } from "@/lib/utils"
 
 export function Footer() {
   const { getContent, loading } = useHomepageContent()
   const { links, externalLinks } = useSiteLinks()
+  const { footerConfig, footerMenuSections, loading: layoutLoading } = useLayoutConfig()
+  
+  // Use layout config with fallbacks
+  const config = footerConfig || DEFAULT_FOOTER_CONFIG
+  
+  // Don't render footer if disabled
+  if (!config.show_footer) {
+    return null;
+  }
 
   const footerLinks = {
     services: [
