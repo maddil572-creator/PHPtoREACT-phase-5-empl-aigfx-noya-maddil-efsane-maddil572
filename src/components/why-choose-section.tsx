@@ -198,7 +198,10 @@ export function WhyChooseSection() {
           
           <div className="text-center">
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Join hundreds of satisfied clients who've seen real results. Your success is my success.
+              {loading 
+                ? "Join hundreds of satisfied clients who've seen real results. Your success is my success."
+                : getContent('global', 'why_choose_closing_text', "Join hundreds of satisfied clients who've seen real results. Your success is my success.")
+              }
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">

@@ -132,13 +132,14 @@ export function HomepageManager() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="hero">Hero Section</TabsTrigger>
           <TabsTrigger value="why_choose">Why Choose</TabsTrigger>
           <TabsTrigger value="why_choose_reasons">Reasons</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
           <TabsTrigger value="social">Social Links</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
+          <TabsTrigger value="global">Global Content</TabsTrigger>
         </TabsList>
 
         {/* Hero Section */}
@@ -539,6 +540,72 @@ export function HomepageManager() {
                   placeholder="/contact"
                 />
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Global Content */}
+        <TabsContent value="global" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Global Content</CardTitle>
+              <CardDescription>
+                Manage site-wide content used across multiple pages and components
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <ContentField
+                section="global"
+                contentKey="site_description"
+                label="Default Site Description"
+                type="textarea"
+                placeholder="Transform your brand with premium logo design..."
+                description="Used as default meta description across the site"
+              />
+              
+              <ContentField
+                section="global"
+                contentKey="auth_page_subtitle"
+                label="Auth Page Subtitle"
+                placeholder="Join thousands of satisfied clients"
+                description="Subtitle text on login/register pages"
+              />
+              
+              <ContentField
+                section="global"
+                contentKey="about_intro_text"
+                label="About Page Intro Text"
+                type="textarea"
+                placeholder="Since then, I've helped over 500 clients..."
+                description="Introduction text on the About page"
+              />
+              
+              <ContentField
+                section="global"
+                contentKey="why_choose_closing_text"
+                label="Why Choose Closing Text"
+                type="textarea"
+                placeholder="Join hundreds of satisfied clients..."
+                description="Closing text in the Why Choose section"
+              />
+              
+              <ContentField
+                section="global"
+                contentKey="popup_offer_description"
+                label="Popup Offer Description"
+                type="textarea"
+                placeholder="Join thousands of satisfied clients and start your design journey..."
+                description="Description text in popup offers"
+              />
+              
+              <ContentField
+                section="global"
+                contentKey="chatbot_portfolio_response"
+                label="Chatbot Portfolio Response"
+                type="textarea"
+                placeholder="🏆 Check out my work..."
+                description="Chatbot response when users ask about portfolio"
+              />
             </CardContent>
           </Card>
         </TabsContent>

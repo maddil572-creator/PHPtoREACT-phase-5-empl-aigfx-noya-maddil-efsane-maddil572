@@ -181,6 +181,31 @@ function initializeDefaultContent($db) {
         ['why_choose_reasons', 'reason_6_stat', '5+ Years', 'text'],
         ['why_choose_reasons', 'reason_6_icon', 'Award', 'text'],
         ['why_choose_reasons', 'reason_6_color', 'text-purple-500', 'text'],
+        
+        // About Page Stats
+        ['about_stats', 'stat_1_value', '500+', 'text'],
+        ['about_stats', 'stat_1_label', 'Happy Clients', 'text'],
+        ['about_stats', 'stat_1_icon', 'Users', 'text'],
+        
+        ['about_stats', 'stat_2_value', '24-48h', 'text'],
+        ['about_stats', 'stat_2_label', 'Average Delivery', 'text'],
+        ['about_stats', 'stat_2_icon', 'Clock', 'text'],
+        
+        ['about_stats', 'stat_3_value', '5.0★', 'text'],
+        ['about_stats', 'stat_3_label', 'Average Rating', 'text'],
+        ['about_stats', 'stat_3_icon', 'Award', 'text'],
+        
+        ['about_stats', 'stat_4_value', '99%', 'text'],
+        ['about_stats', 'stat_4_label', 'Client Retention', 'text'],
+        ['about_stats', 'stat_4_icon', 'Zap', 'text'],
+        
+        // Global Content
+        ['global', 'site_description', 'Transform your brand with premium logo design, high-converting YouTube thumbnails, and professional video editing. Trusted by 500+ clients worldwide. Get results in 24-48 hours.', 'textarea'],
+        ['global', 'chatbot_portfolio_response', '🏆 Check out my work:\n\n• 500+ happy clients worldwide\n• Projects that generated millions in revenue\n• 5-star rating on all platforms\n\nView my full portfolio at /portfolio or would you like me to show you specific examples?', 'textarea'],
+        ['global', 'auth_page_subtitle', 'Join thousands of satisfied clients', 'text'],
+        ['global', 'popup_offer_description', 'Join thousands of satisfied clients and start your design journey with us. Enter your email to claim your exclusive welcome discount.', 'textarea'],
+        ['global', 'about_intro_text', 'Since then, I\'ve helped over 500 clients across various industries, from YouTubers who\'ve gained millions of subscribers to startups that secured major funding rounds.', 'textarea'],
+        ['global', 'why_choose_closing_text', 'Join hundreds of satisfied clients who\'ve seen real results. Your success is my success.', 'textarea'],
     ];
     
     $stmt = $db->prepare("

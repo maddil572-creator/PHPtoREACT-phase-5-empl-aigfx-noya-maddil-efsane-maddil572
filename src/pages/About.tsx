@@ -1,5 +1,7 @@
 import { Award, Users, Clock, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { SEOHead } from "@/components/seo-head"
+import { useHomepageContent } from "@/hooks/useHomepageContent"
 
 const tools = [
   { name: "Adobe Photoshop", level: "Expert", years: "8+" },
@@ -10,16 +12,40 @@ const tools = [
   { name: "AI Tools (MidJourney, etc.)", level: "Advanced", years: "2+" }
 ]
 
-const achievements = [
-  { icon: Users, value: "500+", label: "Happy Clients" },
-  { icon: Clock, value: "24-48h", label: "Average Delivery" },
-  { icon: Award, value: "5.0★", label: "Average Rating" },
-  { icon: Zap, value: "99%", label: "Client Retention" }
-]
+// Icon mapping
+const iconMap = {
+  Users,
+  Clock,
+  Award,
+  Zap
+}
 
 export default function About() {
+  const { getContent, loading } = useHomepageContent()
+
+  // Generate dynamic achievements from database content
+  const achievements = loading ? [
+    { icon: Users, value: "500+", label: "Happy Clients" },
+    { icon: Clock, value: "24-48h", label: "Average Delivery" },
+    { icon: Award, value: "5.0★", label: "Average Rating" },
+    { icon: Zap, value: "99%", label: "Client Retention" }
+  ] : [1, 2, 3, 4].map(num => {
+    const iconName = getContent('about_stats', `stat_${num}_icon`, 'Users')
+    return {
+      icon: iconMap[iconName as keyof typeof iconMap] || Users,
+      value: getContent('about_stats', `stat_${num}_value`, '0'),
+      label: getContent('about_stats', `stat_${num}_label`, 'Stat')
+    }
+  })
   return (
-    <main className="pt-24 pb-20">
+    <>
+      <SEOHead
+        title="About Adil - Professional Designer & YouTube Expert | Adil GFX"
+        description="Meet Adil, a professional designer specializing in logo design, YouTube thumbnails, and video editing. 500+ happy clients, 5-star rating, 24-48h delivery."
+        keywords="about adil gfx, professional designer, youtube expert, logo designer, thumbnail designer"
+        url="https://adilgfx.com/about"
+      />
+      <main className="pt-24 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
@@ -81,7 +107,10 @@ export default function About() {
                   power of great design—it's not just about making things look pretty, it's about driving real business results.
                 </p>
                 <p className="mb-6">
-                  Since then, I've helped over 500 clients across various industries, from YouTubers who've gained millions 
+                  {loading 
+                    ? "Since then, I've helped over 500 clients across various industries, from YouTubers who've gained millions"
+                    : getContent('global', 'about_intro_text', "Since then, I've helped over 500 clients across various industries, from YouTubers who've gained millions of subscribers to startups that secured major funding rounds.")
+                  } 
                   of subscribers to startups that have raised millions in funding. Each project teaches me something new, 
                   and I bring that accumulated knowledge to every new client.
                 </p>
@@ -190,5 +219,6 @@ export default function About() {
         </div>
       </div>
     </main>
+    </>
   )
 }
