@@ -227,12 +227,12 @@ CREATE TABLE IF NOT EXISTS media (
 
 -- Insert sample data
 INSERT OR IGNORE INTO users (email, password, name, role, status, email_verified) VALUES
-('admin@adilgfx.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin User', 'admin', 'active', 1);
+('admin@adilcreator.com', '$2y$12$PXq0z7MbJKf/AQMEe6Fjsu6tZfjErrbYrGvtWyDnMa2my.xw46Xg2', 'Adil Creator Admin', 'admin', 'active', 1);
 
 INSERT OR IGNORE INTO settings (key, value, type, category, description) VALUES
-('site_name', 'Adil GFX', 'text', 'general', 'Website name'),
-('site_tagline', 'Professional Design Services', 'text', 'general', 'Website tagline'),
-('contact_email', 'hello@adilgfx.com', 'email', 'general', 'Primary contact email');
+('site_name', 'Adil Creator', 'text', 'general', 'Website name'),
+('site_tagline', 'Professional Design & Creative Services', 'text', 'general', 'Website tagline'),
+('contact_email', 'admin@adilcreator.com', 'email', 'general', 'Primary contact email');
 
 INSERT OR IGNORE INTO categories (name, slug, description, color, icon) VALUES
 ('Logo Design', 'logo-design', 'Professional logo design services', '#3B82F6', 'palette'),
