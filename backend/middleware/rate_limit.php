@@ -5,6 +5,8 @@
  */
 
 if (!isset($_ENV['RATE_LIMIT_ENABLED']) || $_ENV['RATE_LIMIT_ENABLED'] !== 'false') {
+    require_once __DIR__ . '/../config/database.php';
+    
     $ip = $_SERVER['REMOTE_ADDR'];
     $endpoint = $_SERVER['REQUEST_URI'];
     

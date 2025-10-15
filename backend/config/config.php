@@ -5,10 +5,11 @@
  */
 
 // Load environment variables
-if (file_exists(__DIR__ . '/../.env')) {
-    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+if (file_exists(__DIR__ . '/../../.env')) {
+    $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') === false) continue;
         list($name, $value) = explode('=', $line, 2);
         $_ENV[trim($name)] = trim($value);
     }
@@ -59,7 +60,7 @@ header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // Error reporting
-if ($_ENV['APP_ENV'] === 'development') {
+if (($_ENV['APP_ENV'] ?? 'production') === 'development') {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
 } else {

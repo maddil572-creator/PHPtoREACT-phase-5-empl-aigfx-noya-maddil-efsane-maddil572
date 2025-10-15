@@ -23,7 +23,16 @@ try {
     
     // Check if tables already exist
     echo "🔍 Checking existing tables...\n";
-    $stmt = $db->query("SHOW TABLES");
+    
+    // Check database driver
+    $driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+    
+    if ($driver === 'sqlite') {
+        $stmt = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+    } else {
+        $stmt = $db->query("SHOW TABLES");
+    }
+    
     $existingTables = $stmt->fetchAll(PDO::FETCH_COLUMN);
     
     if (count($existingTables) > 0) {
@@ -45,7 +54,11 @@ try {
             case '2':
                 echo "🗑️  Dropping existing tables...\n";
                 foreach ($existingTables as $table) {
-                    $db->exec("DROP TABLE IF EXISTS `$table`");
+                    if ($driver === 'sqlite') {
+                        $db->exec("DROP TABLE IF EXISTS \"$table\"");
+                    } else {
+                        $db->exec("DROP TABLE IF EXISTS `$table`");
+                    }
                 }
                 echo "✅ All tables dropped.\n\n";
                 break;
@@ -60,7 +73,13 @@ try {
     
     // Install database schema
     echo "📋 Installing unified database schema...\n";
-    $schemaFile = __DIR__ . '/database/unified_schema.sql';
+    
+    // Choose schema file based on database driver
+    if ($driver === 'sqlite') {
+        $schemaFile = __DIR__ . '/database/simple_schema.sql';
+    } else {
+        $schemaFile = __DIR__ . '/database/unified_schema.sql';
+    }
     
     if (!file_exists($schemaFile)) {
         throw new Exception("Unified schema file not found: $schemaFile");

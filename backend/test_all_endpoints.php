@@ -55,7 +55,7 @@ function testEndpoint($url, $method = 'GET', $data = null, $headers = []) {
 echo colorOutput("🔍 COMPREHENSIVE API ENDPOINT TEST\n", 'blue');
 echo colorOutput("=====================================\n\n", 'blue');
 
-$baseUrl = 'http://localhost:8000/backend';
+$baseUrl = 'http://localhost:8000';
 $endpoints = [
     // Core API endpoints
     'API Status' => ['GET', '/'],
