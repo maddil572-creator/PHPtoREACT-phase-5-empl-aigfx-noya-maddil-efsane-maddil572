@@ -636,4 +636,33 @@ class Auth {
             return null;
         }
     }
+    
+    /**
+     * Validate token and return user data (alias for verifyToken)
+     */
+    public function validateToken($token = null) {
+        if (!$token) {
+            $headers = getallheaders();
+            if (isset($headers['Authorization'])) {
+                $authHeader = $headers['Authorization'];
+                if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+                    $token = $matches[1];
+                }
+            }
+        }
+        
+        if (!$token) {
+            return null;
+        }
+        
+        $result = $this->verifyToken($token);
+        return $result['success'] ? $result['data']['user'] : null;
+    }
+    
+    /**
+     * Get current authenticated user
+     */
+    public function getCurrentUser() {
+        return $this->validateToken();
+    }
 }
