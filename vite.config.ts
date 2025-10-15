@@ -10,6 +10,13 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "::",
       port: 8080,
+      proxy: {
+        '/backend': {
+          target: 'http://localhost:8000',
+          changeOrigin: true,
+          rewrite: (p) => p.replace(/^\/backend/, ''),
+        },
+      },
     },
     plugins: [
       react(),

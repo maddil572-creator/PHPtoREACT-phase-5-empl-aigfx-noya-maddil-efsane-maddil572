@@ -35,6 +35,28 @@ define('ALLOWED_ORIGINS', [
     'https://adilcreator.com',
     'https://www.adilcreator.com'
 ]);
+=======
+$frontendUrl = $_ENV['FRONTEND_URL'] ?? 'https://adilgfx.com';
+$allowedOrigins = [$frontendUrl];
+
+// Include www/non-www variants for the configured frontend URL
+$parsedFront = parse_url($frontendUrl);
+if ($parsedFront && isset($parsedFront['scheme'], $parsedFront['host'])) {
+    $scheme = $parsedFront['scheme'];
+    $host = $parsedFront['host'];
+    if (strpos($host, 'www.') === 0) {
+        $allowedOrigins[] = $scheme . '://' . substr($host, 4);
+    } else {
+        $allowedOrigins[] = $scheme . '://www.' . $host;
+    }
+}
+
+// Always allow common local development URLs
+$allowedOrigins[] = 'http://localhost:5173';
+$allowedOrigins[] = 'http://localhost:8080';
+$allowedOrigins[] = 'http://localhost:3000';
+
+define('ALLOWED_ORIGINS', array_values(array_unique($allowedOrigins)));
 
 // File upload settings
 define('MAX_FILE_SIZE', 10 * 1024 * 1024); // 10MB
