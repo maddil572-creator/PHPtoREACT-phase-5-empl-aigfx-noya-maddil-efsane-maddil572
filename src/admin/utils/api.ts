@@ -341,6 +341,29 @@ export interface AuditLog {
   status: 'success' | 'failed';
 }
 
+export interface FAQ {
+  id: number;
+  question: string;
+  answer: string;
+  category: string;
+  status: 'draft' | 'published';
+  order?: number;
+  featured: boolean;
+  views?: number;
+  helpful_votes?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FAQFormData {
+  question: string;
+  answer: string;
+  category: string;
+  status: 'draft' | 'published';
+  order?: number;
+  featured: boolean;
+}
+
 export const adminApi = {
   auth: {
     login: async (email: string, password: string) => {
@@ -729,6 +752,43 @@ export const adminApi = {
 
     getById: async (id: number) => {
       return request<ApiResponse<{ log: AuditLog }>>(`/api/admin/audit.php/${id}`);
+    },
+  },
+
+  faqs: {
+    getAll: async () => {
+      return request<ApiResponse<FAQ[]>>('/api/faqs.php');
+    },
+
+    getById: async (id: number) => {
+      return request<ApiResponse<FAQ>>(`/api/faqs.php/${id}`);
+    },
+
+    create: async (data: FAQFormData) => {
+      return request<ApiResponse<{ id: number }>>('/api/faqs.php', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+
+    update: async (id: number, data: FAQFormData) => {
+      return request<ApiResponse>(`/api/faqs.php/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+
+    delete: async (id: number) => {
+      return request<ApiResponse>(`/api/faqs.php/${id}`, {
+        method: 'DELETE',
+      });
+    },
+
+    bulkUpdate: async (updates: Array<{ id: number; order?: number; status?: string }>) => {
+      return request<ApiResponse>('/api/faqs.php/bulk-update', {
+        method: 'POST',
+        body: JSON.stringify({ updates }),
+      });
     },
   },
 

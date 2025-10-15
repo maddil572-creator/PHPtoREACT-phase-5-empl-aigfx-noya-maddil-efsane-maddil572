@@ -423,6 +423,46 @@ export async function fetchTestimonials(): Promise<Testimonial[]> {
 }
 
 /**
+ * Fetch all FAQs
+ * @returns Promise<{ data: FAQ[] }>
+ */
+export async function fetchFAQs(): Promise<{ data: any[] }> {
+  if (USE_MOCK_DATA) {
+    await simulateDelay();
+    // Mock FAQ data
+    const mockFAQs = [
+      {
+        id: 1,
+        question: "How long does it typically take to complete a project?",
+        answer: "Timeline varies by service: Logo design takes 2-7 days, thumbnails are delivered within 24-48 hours, and video editing ranges from 3-10 days depending on complexity. Rush delivery is available for an additional 50% fee.",
+        category: "General",
+        status: "published",
+        order: 1,
+        featured: true
+      },
+      {
+        id: 2,
+        question: "What's included in the final delivery?",
+        answer: "All projects include high-resolution files in multiple formats (PNG, JPG, and source files when applicable), commercial usage rights, and a basic style guide. Premium packages include additional formats like SVG, AI, and comprehensive brand guidelines.",
+        category: "General",
+        status: "published",
+        order: 2,
+        featured: false
+      }
+    ];
+    return { data: mockFAQs };
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/faqs`);
+    if (!response.ok) throw new Error('Failed to fetch FAQs');
+    return await response.json();
+  } catch (error) {
+    return handleApiError(error, { data: [] });
+  }
+}
+
+/**
  * Fetch portfolio items with pagination and filtering
  * @param page - Page number (default: 1)
  * @param limit - Items per page (default: 10)

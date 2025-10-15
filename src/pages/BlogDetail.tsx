@@ -10,6 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { fetchBlogById } from '@/utils/api';
 import { SEOHead } from '@/components/seo-head';
+import { BreadcrumbNavigation } from '@/components/breadcrumb-navigation';
+import { RelatedPosts, InternalLinkSuggestions } from '@/components/related-posts';
+import { OptimizedCTA } from '@/components/optimized-cta';
 import { injectStructuredData, generateArticleSchema } from '@/utils/seo';
 import { useAnalytics } from '@/utils/analytics';
 import type { Blog } from '@/types';
@@ -96,6 +99,15 @@ export default function BlogDetail() {
       
       <main className="pt-24 pb-20">
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb Navigation */}
+          <BreadcrumbNavigation 
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Blog', href: '/blog' },
+              { label: blog.title, href: `/blog/${blog.slug || blog.id}`, isCurrentPage: true }
+            ]}
+          />
+          
           {/* Back button */}
           <Link to="/blog" className="inline-flex items-center text-youtube-red hover:underline mb-8">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -144,6 +156,12 @@ export default function BlogDetail() {
           <div className="prose prose-lg max-w-none mb-8">
             <p className="text-xl text-muted-foreground mb-6">{blog.excerpt}</p>
             <div className="text-foreground">{blog.content}</div>
+            
+            {/* Internal link suggestions within content */}
+            <InternalLinkSuggestions
+              currentPostTags={blog.tags}
+              currentPostCategory={blog.category}
+            />
           </div>
 
           {/* Tags */}
@@ -159,23 +177,19 @@ export default function BlogDetail() {
             ))}
           </div>
 
-          {/* CTA */}
-          <div className="bg-gradient-subtle rounded-2xl p-8 text-center">
-            <h2 className="text-2xl font-bold text-foreground mb-4">
-              Ready to Elevate Your Brand?
-            </h2>
-            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Let's create designs that convert. Get in touch today for a free consultation.
-            </p>
-            <Link to="/contact">
-              <Button 
-                size="lg"
-                className="bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-semibold px-8"
-              >
-                Start Your Project
-              </Button>
-            </Link>
-          </div>
+          {/* Related Posts */}
+          <RelatedPosts
+            currentPostId={blog.id}
+            currentPostTags={blog.tags}
+            currentPostCategory={blog.category}
+            className="mb-12"
+          />
+
+          {/* Optimized CTA */}
+          <OptimizedCTA 
+            variant="blog" 
+            trackingId={`blog-${blog.id}`}
+          />
         </article>
       </main>
     </>

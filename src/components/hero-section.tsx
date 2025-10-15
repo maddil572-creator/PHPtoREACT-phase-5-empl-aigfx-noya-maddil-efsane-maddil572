@@ -1,6 +1,7 @@
 import { ArrowRight, Play, Star } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
+import { OptimizedCTA } from "@/components/optimized-cta"
 
 export function HeroSection() {
   return (
@@ -69,6 +70,15 @@ export function HeroSection() {
                 Watch Portfolio
               </Button>
             </Link>
+          </div>
+          
+          {/* A/B Test CTA Section */}
+          <div className="pt-16">
+            <OptimizedCTA 
+              variant="hero" 
+              trackingId="hero-main"
+              className="max-w-4xl mx-auto"
+            />
           </div>
 
           {/* Trust indicators */}
