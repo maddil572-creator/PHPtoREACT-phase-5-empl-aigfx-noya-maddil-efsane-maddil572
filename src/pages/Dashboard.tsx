@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { SEOHead } from "@/components/seo-head"
 import { HomepageManager } from "@/admin/pages/Homepage"
+import { PageManager } from "@/admin/pages/Pages"
 import { BlogList } from "@/admin/pages/Blogs"
 import { PortfolioGrid } from "@/admin/pages/Portfolio"
 import { ServiceList } from "@/admin/pages/Services"
@@ -151,7 +152,7 @@ export default function Dashboard() {
 
             {/* Admin Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
+              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-10">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
                   <span className="hidden sm:inline">Overview</span>
@@ -159,6 +160,10 @@ export default function Dashboard() {
                 <TabsTrigger value="homepage" className="flex items-center gap-2">
                   <Home className="h-4 w-4" />
                   <span className="hidden sm:inline">Homepage</span>
+                </TabsTrigger>
+                <TabsTrigger value="pages" className="flex items-center gap-2">
+                  <Globe className="h-4 w-4" />
+                  <span className="hidden sm:inline">Pages</span>
                 </TabsTrigger>
                 <TabsTrigger value="blogs" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
@@ -197,7 +202,11 @@ export default function Dashboard() {
               <TabsContent value="homepage">
                 <HomepageManager />
               </TabsContent>
-
+              
+              <TabsContent value="pages">
+                <PageManager />
+              </TabsContent>
+              
               <TabsContent value="blogs">
                 <BlogList />
               </TabsContent>

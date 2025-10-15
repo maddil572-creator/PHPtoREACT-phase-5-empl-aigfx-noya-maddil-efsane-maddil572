@@ -231,6 +231,45 @@ function initializeDefaultContent($db) {
         ['site_settings', 'favicon_url', '/favicon.ico', 'url'],
         ['site_settings', 'site_url', 'https://adilgfx.com', 'url'],
         ['site_settings', 'admin_email', 'admin@adilgfx.com', 'email'],
+        
+        // Header Configuration
+        ['header', 'show_header', 'true', 'boolean'],
+        ['header', 'header_style', 'modern', 'text'], // modern, classic, minimal
+        ['header', 'header_background', 'transparent', 'text'], // transparent, solid, gradient
+        ['header', 'header_position', 'sticky', 'text'], // sticky, fixed, static
+        ['header', 'show_search', 'false', 'boolean'],
+        ['header', 'show_language_switcher', 'false', 'boolean'],
+        ['header', 'show_theme_toggle', 'true', 'boolean'],
+        ['header', 'header_height', '80', 'number'],
+        ['header', 'mobile_menu_style', 'slide', 'text'], // slide, dropdown, fullscreen
+        
+        // Footer Configuration
+        ['footer', 'show_footer', 'true', 'boolean'],
+        ['footer', 'footer_style', 'modern', 'text'], // modern, classic, minimal
+        ['footer', 'footer_columns', '4', 'number'],
+        ['footer', 'show_newsletter', 'true', 'boolean'],
+        ['footer', 'show_social_links', 'true', 'boolean'],
+        ['footer', 'show_back_to_top', 'true', 'boolean'],
+        ['footer', 'footer_background', 'dark', 'text'], // dark, light, gradient
+        ['footer', 'copyright_position', 'center', 'text'], // left, center, right
+        
+        // Header Menu Items (additional to main navigation)
+        ['header_menu', 'item_1_text', 'Get Quote', 'text'],
+        ['header_menu', 'item_1_url', '/contact', 'text'],
+        ['header_menu', 'item_1_style', 'button', 'text'], // link, button, highlight
+        ['header_menu', 'item_2_text', 'Portfolio', 'text'],
+        ['header_menu', 'item_2_url', '/portfolio', 'text'],
+        ['header_menu', 'item_2_style', 'link', 'text'],
+        
+        // Footer Menu Sections
+        ['footer_menu', 'section_1_title', 'Services', 'text'],
+        ['footer_menu', 'section_1_links', 'Logo Design:/services#logos,Thumbnails:/services#thumbnails,Video Editing:/services#video', 'textarea'],
+        ['footer_menu', 'section_2_title', 'Company', 'text'],
+        ['footer_menu', 'section_2_links', 'About Us:/about,Portfolio:/portfolio,Testimonials:/testimonials', 'textarea'],
+        ['footer_menu', 'section_3_title', 'Support', 'text'],
+        ['footer_menu', 'section_3_links', 'Contact:/contact,FAQ:/faq,Help Center:/help', 'textarea'],
+        ['footer_menu', 'section_4_title', 'Legal', 'text'],
+        ['footer_menu', 'section_4_links', 'Privacy Policy:/privacy,Terms of Service:/terms,Refund Policy:/refunds', 'textarea'],
     ];
     
     $stmt = $db->prepare("
