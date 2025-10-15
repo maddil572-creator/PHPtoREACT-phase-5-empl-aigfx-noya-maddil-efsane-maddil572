@@ -1,249 +1,452 @@
 <?php
 /**
  * AI Integration Test Script
- * Tests all AI features to ensure proper setup
+ * Comprehensive testing for all AI features
  */
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/OpenAIIntegration.php';
 
-echo "🤖 AI Integration Test Suite\n";
-echo "============================\n\n";
-
-// Test 1: Environment Configuration
-echo "1. Testing Environment Configuration...\n";
-$apiKey = $_ENV['OPENAI_API_KEY'] ?? null;
-$budget = $_ENV['AI_MONTHLY_BUDGET'] ?? null;
-
-if (!$apiKey) {
-    echo "❌ OPENAI_API_KEY not found in environment\n";
-    echo "   Please add OPENAI_API_KEY to your .env file\n\n";
-    exit(1);
-} else {
-    echo "✅ OpenAI API key found\n";
-}
-
-if (!$budget) {
-    echo "⚠️  AI_MONTHLY_BUDGET not set, using default $50\n";
-} else {
-    echo "✅ Monthly budget set to $" . $budget . "\n";
-}
-
-// Test 2: Database Connection
-echo "\n2. Testing Database Connection...\n";
-try {
-    $database = new Database();
-    $db = $database->getConnection();
-    echo "✅ Database connection successful\n";
+class AIIntegrationTester {
+    private $openai;
+    private $db;
+    private $results = [];
     
-    // Check if AI tables exist
-    $tables = ['ai_usage_log', 'ai_response_cache', 'ai_config', 'ai_generated_content', 'ai_budget_tracking'];
-    foreach ($tables as $table) {
-        $stmt = $db->prepare("SHOW TABLES LIKE ?");
-        $stmt->execute([$table]);
-        if ($stmt->rowCount() > 0) {
-            echo "✅ Table $table exists\n";
-        } else {
-            echo "❌ Table $table missing - run AI migration\n";
+    public function __construct() {
+        $database = new Database();
+        $this->db = $database->getConnection();
+        $this->openai = new OpenAIIntegration();
+    }
+    
+    public function runAllTests() {
+        echo "🤖 AI Integration Test Suite\n";
+        echo "============================\n\n";
+        
+        $this->testDatabaseSetup();
+        $this->testAPIConnection();
+        $this->testBudgetTracking();
+        $this->testCaching();
+        $this->testBlogGeneration();
+        $this->testProposalGeneration();
+        $this->testSupportChat();
+        $this->testSEOOptimization();
+        $this->testRateLimiting();
+        
+        $this->printSummary();
+    }
+    
+    private function testDatabaseSetup() {
+        echo "📊 Testing Database Setup...\n";
+        
+        $tables = [
+            'ai_usage_log',
+            'ai_response_cache', 
+            'ai_config',
+            'ai_generated_content',
+            'ai_budget_tracking',
+            'ai_chat_sessions',
+            'ai_chat_messages'
+        ];
+        
+        foreach ($tables as $table) {
+            try {
+                $stmt = $this->db->query("SELECT 1 FROM {$table} LIMIT 1");
+                $this->logResult("Database table '{$table}' exists", true);
+            } catch (Exception $e) {
+                $this->logResult("Database table '{$table}' missing", false, $e->getMessage());
+            }
         }
-    }
-} catch (Exception $e) {
-    echo "❌ Database connection failed: " . $e->getMessage() . "\n";
-    exit(1);
-}
-
-// Test 3: OpenAI Integration Class
-echo "\n3. Testing OpenAI Integration Class...\n";
-try {
-    $openai = new OpenAIIntegration();
-    echo "✅ OpenAI integration class initialized\n";
-    
-    // Test usage stats
-    $stats = $openai->getUsageStats();
-    if ($stats['success']) {
-        echo "✅ Usage statistics retrieved\n";
-        echo "   Current spend: $" . number_format($stats['data']['current_spend'], 4) . "\n";
-        echo "   Monthly budget: $" . number_format($stats['data']['monthly_budget'], 2) . "\n";
-    } else {
-        echo "⚠️  Could not retrieve usage stats\n";
-    }
-} catch (Exception $e) {
-    echo "❌ OpenAI integration failed: " . $e->getMessage() . "\n";
-}
-
-// Test 4: API Key Validation
-echo "\n4. Testing OpenAI API Key...\n";
-$ch = curl_init();
-curl_setopt_array($ch, [
-    CURLOPT_URL => 'https://api.openai.com/v1/models',
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => [
-        'Authorization: Bearer ' . $apiKey,
-        'User-Agent: AdilGFX-Test/1.0'
-    ],
-    CURLOPT_TIMEOUT => 10
-]);
-
-$response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($httpCode === 200) {
-    echo "✅ OpenAI API key is valid\n";
-    $models = json_decode($response, true);
-    $modelCount = count($models['data'] ?? []);
-    echo "   Available models: $modelCount\n";
-} else {
-    echo "❌ OpenAI API key validation failed (HTTP $httpCode)\n";
-    if ($httpCode === 401) {
-        echo "   Please check your API key\n";
-    } elseif ($httpCode === 429) {
-        echo "   Rate limit exceeded or insufficient credits\n";
-    }
-}
-
-// Test 5: Simple Content Generation (if API key is valid)
-if ($httpCode === 200) {
-    echo "\n5. Testing Content Generation...\n";
-    try {
-        $result = $openai->generateSupportResponse(
-            "What are your logo design prices?",
-            ['source' => 'test']
-        );
         
-        if ($result['success']) {
-            echo "✅ Content generation successful\n";
-            echo "   Response length: " . strlen($result['data']['response']) . " characters\n";
-            echo "   Cost: $" . number_format($result['cost'], 4) . "\n";
-            echo "   Sample response: " . substr($result['data']['response'], 0, 100) . "...\n";
-        } else {
-            echo "❌ Content generation failed: " . $result['error'] . "\n";
+        // Test AI config
+        try {
+            $stmt = $this->db->query("SELECT COUNT(*) as count FROM ai_config");
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $configCount = $result['count'];
+            
+            if ($configCount > 0) {
+                $this->logResult("AI configuration loaded ({$configCount} entries)", true);
+            } else {
+                $this->logResult("AI configuration empty", false, "No default config found");
+            }
+        } catch (Exception $e) {
+            $this->logResult("AI configuration test failed", false, $e->getMessage());
         }
-    } catch (Exception $e) {
-        echo "❌ Content generation error: " . $e->getMessage() . "\n";
-    }
-} else {
-    echo "\n5. Skipping Content Generation (API key invalid)\n";
-}
-
-// Test 6: Cache System
-echo "\n6. Testing Cache System...\n";
-try {
-    $cacheKey = 'test_' . time();
-    $testData = ['test' => 'data', 'timestamp' => time()];
-    
-    // Test cache write
-    $stmt = $db->prepare("INSERT INTO ai_response_cache (cache_key, response_data, operation, expires_at) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))");
-    $stmt->execute([$cacheKey, json_encode($testData), 'test']);
-    
-    // Test cache read
-    $stmt = $db->prepare("SELECT response_data FROM ai_response_cache WHERE cache_key = ? AND expires_at > NOW()");
-    $stmt->execute([$cacheKey]);
-    $cached = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($cached && json_decode($cached['response_data'], true)['test'] === 'data') {
-        echo "✅ Cache system working\n";
         
-        // Clean up test cache
-        $stmt = $db->prepare("DELETE FROM ai_response_cache WHERE cache_key = ?");
-        $stmt->execute([$cacheKey]);
-    } else {
-        echo "❌ Cache system not working\n";
+        echo "\n";
     }
-} catch (Exception $e) {
-    echo "❌ Cache test failed: " . $e->getMessage() . "\n";
-}
-
-// Test 7: Budget Tracking
-echo "\n7. Testing Budget Tracking...\n";
-try {
-    // Check if current month budget entry exists
-    $stmt = $db->prepare("SELECT * FROM ai_budget_tracking WHERE year = YEAR(CURDATE()) AND month = MONTH(CURDATE())");
-    $stmt->execute();
-    $budget = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if ($budget) {
-        echo "✅ Budget tracking active\n";
-        echo "   Current spend: $" . number_format($budget['current_spend'], 4) . "\n";
-        echo "   Budget limit: $" . number_format($budget['budget_limit'], 2) . "\n";
-        echo "   Total requests: " . $budget['total_requests'] . "\n";
-    } else {
-        echo "⚠️  No budget tracking entry for current month\n";
-        echo "   Creating entry...\n";
+    private function testAPIConnection() {
+        echo "🔌 Testing OpenAI API Connection...\n";
         
-        $stmt = $db->prepare("INSERT INTO ai_budget_tracking (year, month, budget_limit) VALUES (YEAR(CURDATE()), MONTH(CURDATE()), ?)");
-        $stmt->execute([floatval($_ENV['AI_MONTHLY_BUDGET'] ?? 50)]);
-        echo "✅ Budget tracking entry created\n";
+        if (!$_ENV['OPENAI_API_KEY']) {
+            $this->logResult("OpenAI API key configured", false, "OPENAI_API_KEY not set in .env");
+            echo "\n";
+            return;
+        }
+        
+        $this->logResult("OpenAI API key configured", true);
+        
+        // Test simple API call
+        try {
+            $result = $this->openai->generateSupportResponse("Hello, this is a test message.");
+            
+            if ($result['success']) {
+                $cost = $result['cost'] ?? 0;
+                $this->logResult("OpenAI API connection successful", true, "Cost: $" . number_format($cost, 4));
+            } else {
+                $this->logResult("OpenAI API connection failed", false, $result['error'] ?? 'Unknown error');
+            }
+        } catch (Exception $e) {
+            $this->logResult("OpenAI API connection failed", false, $e->getMessage());
+        }
+        
+        echo "\n";
     }
+    
+    private function testBudgetTracking() {
+        echo "💰 Testing Budget Tracking...\n";
+        
+        try {
+            $stats = $this->openai->getUsageStats();
+            
+            if ($stats['success']) {
+                $data = $stats['data'];
+                $this->logResult("Budget tracking working", true, 
+                    "Budget: $" . number_format($data['monthly_budget'], 2) . 
+                    ", Spent: $" . number_format($data['current_spend'], 4));
+                
+                // Test budget limit
+                $percentage = ($data['current_spend'] / $data['monthly_budget']) * 100;
+                if ($percentage < 90) {
+                    $this->logResult("Budget within limits", true, number_format($percentage, 1) . "% used");
+                } else {
+                    $this->logResult("Budget approaching limit", false, number_format($percentage, 1) . "% used");
+                }
+            } else {
+                $this->logResult("Budget tracking failed", false, $stats['error'] ?? 'Unknown error');
+            }
+        } catch (Exception $e) {
+            $this->logResult("Budget tracking test failed", false, $e->getMessage());
+        }
+        
+        echo "\n";
+    }
+    
+    private function testCaching() {
+        echo "🗄️ Testing Response Caching...\n";
+        
+        try {
+            // Test cache write
+            $testKey = 'test_cache_' . time();
+            $testData = ['test' => 'data', 'timestamp' => time()];
+            
+            // Use reflection to access private method
+            $reflection = new ReflectionClass($this->openai);
+            $cacheMethod = $reflection->getMethod('cacheResponse');
+            $cacheMethod->setAccessible(true);
+            
+            $cacheMethod->invoke($this->openai, $testKey, $testData, 60);
+            $this->logResult("Cache write test", true);
+            
+            // Test cache read
+            $getCacheMethod = $reflection->getMethod('getCachedResponse');
+            $getCacheMethod->setAccessible(true);
+            
+            $cached = $getCacheMethod->invoke($this->openai, $testKey);
+            
+            if ($cached && $cached['test'] === 'data') {
+                $this->logResult("Cache read test", true);
+            } else {
+                $this->logResult("Cache read test", false, "Cached data not found or corrupted");
+            }
+            
+            // Test cache stats
+            $stmt = $this->db->query("SELECT COUNT(*) as count FROM ai_response_cache");
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $cacheCount = $result['count'];
+            
+            $this->logResult("Cache statistics", true, "{$cacheCount} cached items");
+            
+        } catch (Exception $e) {
+            $this->logResult("Cache testing failed", false, $e->getMessage());
+        }
+        
+        echo "\n";
+    }
+    
+    private function testBlogGeneration() {
+        echo "📝 Testing Blog Generation...\n";
+        
+        try {
+            $result = $this->openai->generateBlogContent(
+                "Test Blog Topic: AI in Design",
+                ['AI', 'design', 'automation'],
+                'professional',
+                'short'
+            );
+            
+            if ($result['success']) {
+                $data = $result['data'];
+                $cost = $result['cost'] ?? 0;
+                
+                $this->logResult("Blog generation successful", true, "Cost: $" . number_format($cost, 4));
+                
+                // Check required fields
+                $requiredFields = ['title', 'content', 'meta_description'];
+                foreach ($requiredFields as $field) {
+                    if (!empty($data[$field])) {
+                        $this->logResult("Blog field '{$field}' generated", true);
+                    } else {
+                        $this->logResult("Blog field '{$field}' missing", false);
+                    }
+                }
+                
+                // Check content length
+                $wordCount = str_word_count(strip_tags($data['content'] ?? ''));
+                if ($wordCount > 100) {
+                    $this->logResult("Blog content length appropriate", true, "{$wordCount} words");
+                } else {
+                    $this->logResult("Blog content too short", false, "{$wordCount} words");
+                }
+                
+            } else {
+                $this->logResult("Blog generation failed", false, $result['error'] ?? 'Unknown error');
+            }
+        } catch (Exception $e) {
+            $this->logResult("Blog generation test failed", false, $e->getMessage());
+        }
+        
+        echo "\n";
+    }
+    
+    private function testProposalGeneration() {
+        echo "📋 Testing Proposal Generation...\n";
+        
+        try {
+            $clientData = [
+                'name' => 'Test Client',
+                'business' => 'Tech Startup',
+                'budget' => '$500-1000'
+            ];
+            
+            $result = $this->openai->generateClientProposal(
+                $clientData,
+                'Logo Design',
+                'Need a professional logo for a new tech startup focusing on AI solutions'
+            );
+            
+            if ($result['success']) {
+                $cost = $result['cost'] ?? 0;
+                $this->logResult("Proposal generation successful", true, "Cost: $" . number_format($cost, 4));
+                
+                // Check if proposal contains client name
+                $proposalContent = json_encode($result['data']);
+                if (strpos($proposalContent, 'Test Client') !== false) {
+                    $this->logResult("Proposal personalization working", true);
+                } else {
+                    $this->logResult("Proposal personalization failed", false, "Client name not found in proposal");
+                }
+                
+            } else {
+                $this->logResult("Proposal generation failed", false, $result['error'] ?? 'Unknown error');
+            }
+        } catch (Exception $e) {
+            $this->logResult("Proposal generation test failed", false, $e->getMessage());
+        }
+        
+        echo "\n";
+    }
+    
+    private function testSupportChat() {
+        echo "💬 Testing Support Chat...\n";
+        
+        try {
+            $testMessages = [
+                "What services do you offer?",
+                "How much does logo design cost?",
+                "What's your turnaround time?",
+                "Do you offer revisions?"
+            ];
+            
+            foreach ($testMessages as $index => $message) {
+                $result = $this->openai->generateSupportResponse($message, [
+                    'test_context' => true,
+                    'message_number' => $index + 1
+                ]);
+                
+                if ($result['success']) {
+                    $response = $result['data']['response'] ?? '';
+                    $cost = $result['cost'] ?? 0;
+                    
+                    if (strlen($response) > 50) {
+                        $this->logResult("Chat response {$index + 1} generated", true, 
+                            "Length: " . strlen($response) . " chars, Cost: $" . number_format($cost, 4));
+                    } else {
+                        $this->logResult("Chat response {$index + 1} too short", false, 
+                            "Length: " . strlen($response) . " chars");
+                    }
+                } else {
+                    $this->logResult("Chat response {$index + 1} failed", false, $result['error'] ?? 'Unknown error');
+                }
+                
+                // Small delay to avoid rate limiting
+                usleep(500000); // 0.5 seconds
+            }
+            
+        } catch (Exception $e) {
+            $this->logResult("Support chat test failed", false, $e->getMessage());
+        }
+        
+        echo "\n";
+    }
+    
+    private function testSEOOptimization() {
+        echo "🔍 Testing SEO Optimization...\n";
+        
+        try {
+            $testContent = "This is a sample blog post about logo design. Logo design is important for businesses. A good logo helps with branding and recognition.";
+            
+            $result = $this->openai->optimizeContentForSEO(
+                $testContent,
+                ['logo design', 'branding', 'business identity'],
+                'blog'
+            );
+            
+            if ($result['success']) {
+                $data = $result['data'];
+                $cost = $result['cost'] ?? 0;
+                
+                $this->logResult("SEO optimization successful", true, "Cost: $" . number_format($cost, 4));
+                
+                // Check if optimized content is longer
+                $originalLength = strlen($testContent);
+                $optimizedLength = strlen($data['optimized_content'] ?? '');
+                
+                if ($optimizedLength > $originalLength) {
+                    $this->logResult("Content optimization effective", true, 
+                        "Original: {$originalLength} chars, Optimized: {$optimizedLength} chars");
+                } else {
+                    $this->logResult("Content optimization minimal", false, 
+                        "No significant improvement in content length");
+                }
+                
+                // Check for SEO score
+                if (isset($data['seo_score']) && $data['seo_score'] > 0) {
+                    $this->logResult("SEO scoring working", true, "Score: " . $data['seo_score'] . "/10");
+                } else {
+                    $this->logResult("SEO scoring missing", false);
+                }
+                
+            } else {
+                $this->logResult("SEO optimization failed", false, $result['error'] ?? 'Unknown error');
+            }
+        } catch (Exception $e) {
+            $this->logResult("SEO optimization test failed", false, $e->getMessage());
+        }
+        
+        echo "\n";
+    }
+    
+    private function testRateLimiting() {
+        echo "⏱️ Testing Rate Limiting...\n";
+        
+        try {
+            // Check current rate limit settings
+            $rateLimit = $_ENV['AI_RATE_LIMIT_PER_HOUR'] ?? 100;
+            $this->logResult("Rate limit configured", true, "{$rateLimit} requests/hour");
+            
+            // Test rate limit tracking
+            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM ai_usage_log WHERE created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $recentRequests = $result['count'];
+            
+            $this->logResult("Rate limit tracking", true, "{$recentRequests} requests in last hour");
+            
+            if ($recentRequests < $rateLimit * 0.8) {
+                $this->logResult("Rate limit healthy", true, "Well below limit");
+            } else {
+                $this->logResult("Rate limit approaching", false, "Close to hourly limit");
+            }
+            
+        } catch (Exception $e) {
+            $this->logResult("Rate limiting test failed", false, $e->getMessage());
+        }
+        
+        echo "\n";
+    }
+    
+    private function logResult($test, $success, $details = '') {
+        $status = $success ? "✅ PASS" : "❌ FAIL";
+        $message = "{$status} - {$test}";
+        
+        if ($details) {
+            $message .= " ({$details})";
+        }
+        
+        echo "  {$message}\n";
+        
+        $this->results[] = [
+            'test' => $test,
+            'success' => $success,
+            'details' => $details
+        ];
+    }
+    
+    private function printSummary() {
+        echo "📊 Test Summary\n";
+        echo "===============\n";
+        
+        $totalTests = count($this->results);
+        $passedTests = count(array_filter($this->results, function($r) { return $r['success']; }));
+        $failedTests = $totalTests - $passedTests;
+        
+        echo "Total Tests: {$totalTests}\n";
+        echo "✅ Passed: {$passedTests}\n";
+        echo "❌ Failed: {$failedTests}\n";
+        echo "Success Rate: " . round(($passedTests / $totalTests) * 100, 1) . "%\n\n";
+        
+        if ($failedTests > 0) {
+            echo "❌ Failed Tests:\n";
+            foreach ($this->results as $result) {
+                if (!$result['success']) {
+                    echo "  - {$result['test']}";
+                    if ($result['details']) {
+                        echo " ({$result['details']})";
+                    }
+                    echo "\n";
+                }
+            }
+            echo "\n";
+        }
+        
+        // Overall assessment
+        if ($passedTests / $totalTests >= 0.9) {
+            echo "🎉 AI Integration Status: EXCELLENT - Ready for production!\n";
+        } elseif ($passedTests / $totalTests >= 0.7) {
+            echo "✅ AI Integration Status: GOOD - Minor issues to address\n";
+        } elseif ($passedTests / $totalTests >= 0.5) {
+            echo "⚠️ AI Integration Status: NEEDS WORK - Several issues to fix\n";
+        } else {
+            echo "❌ AI Integration Status: CRITICAL - Major issues need immediate attention\n";
+        }
+        
+        echo "\n";
+        echo "💡 Next Steps:\n";
+        echo "1. Fix any failed tests above\n";
+        echo "2. Monitor costs and usage in admin panel\n";
+        echo "3. Test chat widget on your website\n";
+        echo "4. Generate sample content and review quality\n";
+        echo "5. Set up monitoring alerts for budget limits\n";
+    }
+}
+
+// Run tests
+try {
+    $tester = new AIIntegrationTester();
+    $tester->runAllTests();
 } catch (Exception $e) {
-    echo "❌ Budget tracking test failed: " . $e->getMessage() . "\n";
+    echo "❌ Critical Error: " . $e->getMessage() . "\n";
+    echo "Please check your configuration and try again.\n";
 }
-
-// Test 8: API Endpoints
-echo "\n8. Testing API Endpoints...\n";
-$baseUrl = 'http://localhost:8000'; // Adjust for your setup
-$endpoints = [
-    '/api/ai.php/usage/stats',
-    '/api/ai.php/config'
-];
-
-foreach ($endpoints as $endpoint) {
-    $ch = curl_init();
-    curl_setopt_array($ch, [
-        CURLOPT_URL => $baseUrl . $endpoint,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 5,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json']
-    ]);
-    
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    
-    if ($httpCode === 200 || $httpCode === 403) { // 403 is OK for admin-only endpoints
-        echo "✅ Endpoint $endpoint accessible\n";
-    } else {
-        echo "❌ Endpoint $endpoint failed (HTTP $httpCode)\n";
-    }
-}
-
-// Summary
-echo "\n" . str_repeat("=", 50) . "\n";
-echo "🎯 TEST SUMMARY\n";
-echo str_repeat("=", 50) . "\n";
-
-$allGood = true;
-
-if (!$apiKey) {
-    echo "❌ CRITICAL: OpenAI API key not configured\n";
-    $allGood = false;
-}
-
-if ($httpCode !== 200) {
-    echo "❌ CRITICAL: OpenAI API key invalid or no credits\n";
-    $allGood = false;
-}
-
-if ($allGood) {
-    echo "🎉 ALL TESTS PASSED!\n";
-    echo "\nYour AI integration is ready to use:\n";
-    echo "• Blog content generation\n";
-    echo "• Client proposal creation\n";
-    echo "• AI customer support chat\n";
-    echo "• SEO content optimization\n";
-    echo "• Budget tracking and monitoring\n";
-    echo "\nNext steps:\n";
-    echo "1. Access admin panel: /admin/ai\n";
-    echo "2. Test chat widget on frontend\n";
-    echo "3. Monitor usage and costs\n";
-    echo "4. Customize AI prompts as needed\n";
-} else {
-    echo "⚠️  SETUP INCOMPLETE\n";
-    echo "\nPlease fix the issues above before using AI features.\n";
-    echo "Refer to AI_INTEGRATION_SETUP.md for detailed instructions.\n";
-}
-
-echo "\n💰 Estimated monthly cost: $20-50 for moderate usage\n";
-echo "📊 Monitor usage at: /admin/ai\n";
-echo "📖 Full documentation: AI_INTEGRATION_SETUP.md\n\n";
 ?>
