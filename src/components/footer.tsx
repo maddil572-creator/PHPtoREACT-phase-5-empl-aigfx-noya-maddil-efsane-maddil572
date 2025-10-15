@@ -1,44 +1,71 @@
-import { Mail, Phone, Youtube, Facebook, Instagram, Linkedin } from "lucide-react"
+import { Mail, Phone, Youtube, Facebook, Instagram, Linkedin, ArrowUp } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
-
-const footerLinks = {
-  services: [
-    { name: "Logo Design", href: "/services#logo" },
-    { name: "YouTube Thumbnails", href: "/services#thumbnails" },
-    { name: "Video Editing", href: "/services#video" },
-    { name: "YouTube Setup & Branding", href: "/services#youtube-branding" }
-  ],
-  explore: [
-    { name: "Portfolio", href: "/portfolio" },
-    { name: "Blog", href: "/blog" },
-    { name: "Testimonials", href: "/testimonials" },
-    { name: "Case Studies", href: "/testimonials#case-studies" }
-  ],
-  support: [
-    { name: "FAQ", href: "/faq" },
-    { name: "Contact", href: "/contact" },
-    { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms & Conditions", href: "/terms" }
-  ],
-  business: [
-    { name: "Hire Me (Direct)", href: "/contact" },
-    { name: "Fiverr Profile", href: "https://fiverr.com/adilgfx" },
-    { name: "Media Kit (PDF)", href: "/media-kit.pdf" },
-    { name: "Free Templates", href: "#lead-magnet" }
-  ]
-}
-
-const socialLinks = [
-  { name: "Facebook", href: "https://facebook.com/adilgfx", icon: Facebook },
-  { name: "Instagram", href: "https://instagram.com/adilgfx", icon: Instagram },
-  { name: "LinkedIn", href: "https://linkedin.com/in/adilgfx", icon: Linkedin }
-]
+import { useHomepageContent } from "@/hooks/useHomepageContent"
+import { useSiteLinks } from "@/hooks/useSiteLinks"
+import { useLayoutConfig, DEFAULT_FOOTER_CONFIG } from "@/hooks/useLayoutConfig"
+import { cn } from "@/lib/utils"
 
 export function Footer() {
+  const { getContent, loading } = useHomepageContent()
+  const { links, externalLinks } = useSiteLinks()
+  const { footerConfig, footerMenuSections, loading: layoutLoading } = useLayoutConfig()
+  
+  // Use layout config with fallbacks
+  const config = footerConfig || DEFAULT_FOOTER_CONFIG
+  
+  // Don't render footer if disabled
+  if (!config.show_footer) {
+    return null;
+  }
+
+  const footerLinks = {
+    services: [
+      { name: "Logo Design", href: `${links.services}#logo` },
+      { name: "YouTube Thumbnails", href: `${links.services}#thumbnails` },
+      { name: "Video Editing", href: `${links.services}#video` },
+      { name: "YouTube Setup & Branding", href: `${links.services}#youtube-branding` }
+    ],
+    explore: [
+      { name: "Portfolio", href: links.portfolio },
+      { name: "Blog", href: links.blog },
+      { name: "Testimonials", href: links.testimonials },
+      { name: "Case Studies", href: `${links.testimonials}#case-studies` }
+    ],
+    support: [
+      { name: "FAQ", href: links.faq },
+      { name: "Contact", href: links.contact },
+      { name: "Privacy Policy", href: "/privacy" },
+      { name: "Terms & Conditions", href: "/terms" }
+    ],
+    business: [
+      { name: "Hire Me (Direct)", href: links.contact },
+      { name: "Fiverr Profile", href: externalLinks.fiverr },
+      { name: "Media Kit (PDF)", href: "/media-kit.pdf" },
+      { name: "Free Templates", href: "#lead-magnet" }
+    ]
+  }
+
+  const socialLinks = [
+    { 
+      name: "Facebook", 
+      href: loading ? "https://facebook.com/adilgfx" : getContent('social', 'facebook_url', 'https://facebook.com/adilgfx'), 
+      icon: Facebook 
+    },
+    { 
+      name: "Instagram", 
+      href: loading ? "https://instagram.com/adilgfx" : getContent('social', 'instagram_url', 'https://instagram.com/adilgfx'), 
+      icon: Instagram 
+    },
+    { 
+      name: "LinkedIn", 
+      href: loading ? "https://linkedin.com/in/adilgfx" : getContent('social', 'linkedin_url', 'https://linkedin.com/in/adilgfx'), 
+      icon: Linkedin 
+    }
+  ]
   return (
     <footer className="bg-primary text-primary-foreground">
       {/* Newsletter section */}
@@ -46,9 +73,14 @@ export function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h3 className="text-2xl font-bold mb-2">Stay Updated</h3>
+              <h3 className="text-2xl font-bold mb-2">
+                {loading ? 'Stay Updated' : getContent('footer', 'newsletter_title', 'Stay Updated')}
+              </h3>
               <p className="text-primary-foreground/80">
-                Get free design tips, latest trends, and exclusive offers delivered to your inbox.
+                {loading 
+                  ? 'Get free design tips, latest trends, and exclusive offers delivered to your inbox.'
+                  : getContent('footer', 'newsletter_description', 'Get free design tips, latest trends, and exclusive offers delivered to your inbox.')
+                }
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -70,14 +102,17 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand column */}
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center space-x-2 mb-4">
+            <Link to={links.home} className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-youtube rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">A</span>
               </div>
               <span className="font-bold text-xl">Adil GFX</span>
             </Link>
             <p className="text-primary-foreground/80 mb-6 text-sm">
-              Professional designer helping brands and YouTubers grow through premium visual content.
+              {loading 
+                ? 'Professional designer helping brands and YouTubers grow through premium visual content.'
+                : getContent('footer', 'company_description', 'Professional designer helping brands and YouTubers grow through premium visual content.')
+              }
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => {
@@ -192,14 +227,23 @@ export function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-primary-foreground/80 text-sm">
-              © 2025 GFX by Adi. All rights reserved.
+              {loading 
+                ? '© 2025 GFX by Adi. All rights reserved.'
+                : getContent('footer', 'copyright_text', '© 2025 GFX by Adi. All rights reserved.')
+              }
             </p>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
-              <a href="mailto:hello@adilgfx.com" className="flex items-center space-x-2 text-primary-foreground/80 hover:text-white text-sm transition-smooth">
+              <a 
+                href={`mailto:${loading ? 'hello@adilgfx.com' : getContent('footer', 'contact_email', 'hello@adilgfx.com')}`} 
+                className="flex items-center space-x-2 text-primary-foreground/80 hover:text-white text-sm transition-smooth"
+              >
                 <Mail className="h-4 w-4" />
-                <span>hello@adilgfx.com</span>
+                <span>{loading ? 'hello@adilgfx.com' : getContent('footer', 'contact_email', 'hello@adilgfx.com')}</span>
               </a>
-              <a href="https://wa.me/1234567890" className="flex items-center space-x-2 text-primary-foreground/80 hover:text-white text-sm transition-smooth">
+              <a 
+                href={`https://wa.me/${loading ? '1234567890' : getContent('footer', 'whatsapp_number', '1234567890')}`} 
+                className="flex items-center space-x-2 text-primary-foreground/80 hover:text-white text-sm transition-smooth"
+              >
                 <Phone className="h-4 w-4" />
                 <span>WhatsApp</span>
               </a>

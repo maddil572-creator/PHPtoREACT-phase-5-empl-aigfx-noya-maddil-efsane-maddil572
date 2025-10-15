@@ -1,0 +1,1 @@
+export { CarouselManager } from './CarouselManager';

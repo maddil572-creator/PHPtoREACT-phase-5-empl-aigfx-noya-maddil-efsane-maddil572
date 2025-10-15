@@ -8,6 +8,7 @@ import { useSearchParams } from "react-router-dom";
 import { Eye, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BeforeAfterSlider } from "@/components/before-after-slider";
+import { useSiteLinks } from "@/hooks/useSiteLinks";
 import { fetchPortfolio } from "@/utils/api";
 import { PortfolioGridSkeleton } from "@/components/skeleton-loader";
 import { SEOHead } from "@/components/seo-head";
@@ -26,6 +27,7 @@ const categories = ["All", "Logos", "Thumbnails", "Video Editing", "YouTube Bran
 const ITEMS_PER_PAGE = 9;
 
 export default function Portfolio() {
+  const { links } = useSiteLinks();
   const [searchParams, setSearchParams] = useSearchParams();
   const analytics = useAnalytics();
 
@@ -260,7 +262,7 @@ export default function Portfolio() {
               <Button 
                 size="lg"
                 className="bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-semibold px-8 py-4"
-                onClick={() => window.location.href = '/contact'}
+                onClick={() => window.location.href = links.contact}
               >
                 Start Your Project Today
               </Button>
