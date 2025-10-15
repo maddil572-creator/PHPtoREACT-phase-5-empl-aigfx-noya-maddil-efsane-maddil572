@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useGlobalSettings } from "@/components/global-settings-provider"
 import { useAuth } from "@/contexts/AuthContext"
+import { useHomepageContent } from "@/hooks/useHomepageContent"
 import { cn } from "@/lib/utils"
 
 const navigation = [
@@ -25,6 +26,7 @@ export function Navigation() {
   const navigate = useNavigate()
   const { settings } = useGlobalSettings()
   const { isAuthenticated, user, logout, hasAnyRole } = useAuth()
+  const { getContent, loading } = useHomepageContent()
 
   const handleLogout = () => {
     logout()
@@ -43,7 +45,7 @@ export function Navigation() {
             <div className="w-8 h-8 bg-gradient-youtube rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">A</span>
             </div>
-            <span>{settings?.content?.siteTitle || 'Adil GFX'}</span>
+            <span>{loading ? (settings?.content?.siteTitle || 'Adil GFX') : getContent('navigation', 'logo_text', settings?.content?.siteTitle || 'Adil GFX')}</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -101,9 +103,9 @@ export function Navigation() {
                     Login
                   </Button>
                 </Link>
-                <Link to="/contact">
+                <Link to={loading ? "/contact" : getContent('navigation', 'cta_button_link', '/contact')}>
                   <Button className="bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-medium">
-                    {settings?.content?.headerCtaText || 'Hire Me Now'}
+                    {loading ? (settings?.content?.headerCtaText || 'Hire Me Now') : getContent('navigation', 'cta_button_text', settings?.content?.headerCtaText || 'Hire Me Now')}
                   </Button>
                 </Link>
               </>
@@ -181,9 +183,9 @@ export function Navigation() {
                       Login
                     </Button>
                   </Link>
-                  <Link to="/contact" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to={loading ? "/contact" : getContent('navigation', 'cta_button_link', '/contact')} onClick={() => setMobileMenuOpen(false)}>
                     <Button className="w-full bg-gradient-youtube hover:shadow-glow transition-all duration-300 font-medium">
-                      {settings?.content?.headerCtaText || 'Hire Me Now'}
+                      {loading ? (settings?.content?.headerCtaText || 'Hire Me Now') : getContent('navigation', 'cta_button_text', settings?.content?.headerCtaText || 'Hire Me Now')}
                     </Button>
                   </Link>
                 </>

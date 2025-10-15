@@ -2,8 +2,10 @@ import { ArrowRight, Play, Star } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { OptimizedCTA } from "@/components/optimized-cta"
+import { useHomepageContent } from "@/hooks/useHomepageContent"
 
 export function HeroSection() {
+  const { getContent, loading } = useHomepageContent()
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background gradient */}
@@ -21,53 +23,63 @@ export function HeroSection() {
           <div className="inline-flex items-center space-x-2 bg-card border border-border rounded-full px-4 py-2 shadow-small">
             <Star className="h-4 w-4 text-youtube-red fill-current" />
             <span className="text-sm font-medium text-muted-foreground">
-              Trusted by 500+ YouTubers & Brands
+              {loading ? 'Trusted by 500+ YouTubers & Brands' : getContent('hero', 'badge_text', 'Trusted by 500+ YouTubers & Brands')}
             </span>
           </div>
 
           {/* Main headline */}
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
-              Transform Your Brand with
-              <span className="text-gradient-youtube block">
-                Premium Designs
-              </span>
+              {loading ? (
+                <>
+                  Transform Your Brand with
+                  <span className="text-gradient-youtube block">
+                    Premium Designs
+                  </span>
+                </>
+              ) : (
+                <span className="text-gradient-youtube">
+                  {getContent('hero', 'main_headline', 'Transform Your Brand with Premium Designs')}
+                </span>
+              )}
             </h1>
             <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Professional logo design, YouTube thumbnails, and video editing that converts viewers into loyal customers. 
-              <span className="text-foreground font-medium"> Ready in 24-48 hours.</span>
+              {loading 
+                ? 'Professional logo design, YouTube thumbnails, and video editing that converts viewers into loyal customers. Ready in 24-48 hours.'
+                : getContent('hero', 'subtitle', 'Professional logo design, YouTube thumbnails, and video editing that converts viewers into loyal customers. Ready in 24-48 hours.')
+              }
             </p>
           </div>
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-            <Link to="/contact">
+            <Link to={loading ? "/contact" : getContent('hero', 'cta_primary_link', '/contact')}>
               <Button 
                 size="lg" 
                 className="bg-gradient-youtube hover:shadow-glow transition-all duration-300 transform hover:scale-105 font-semibold text-lg px-8 py-4"
               >
-                Start Your Project
+                {loading ? 'Start Your Project' : getContent('hero', 'cta_primary_text', 'Start Your Project')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link to="/about">
+            <Link to={loading ? "/about" : getContent('hero', 'cta_secondary_link', '/about')}>
               <Button 
                 variant="secondary" 
                 size="lg"
                 className="font-semibold text-lg px-8 py-4 transition-all duration-300 hover:scale-105 hover:shadow-lg animate-fade-in"
               >
                 <Play className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
-                Watch My Intro
+                {loading ? 'Watch My Intro' : getContent('hero', 'cta_secondary_text', 'Watch My Intro')}
               </Button>
             </Link>
-            <Link to="/portfolio">
+            <Link to={loading ? "/portfolio" : getContent('hero', 'cta_tertiary_link', '/portfolio')}>
               <Button 
                 variant="outline" 
                 size="lg"
                 className="border-2 border-youtube-red text-youtube-red hover:bg-youtube-red hover:text-white font-semibold text-lg px-8 py-4 transition-smooth"
               >
                 <Play className="mr-2 h-5 w-5" />
-                Watch Portfolio
+                {loading ? 'Watch Portfolio' : getContent('hero', 'cta_tertiary_text', 'Watch Portfolio')}
               </Button>
             </Link>
           </div>
@@ -84,20 +96,36 @@ export function HeroSection() {
           {/* Trust indicators */}
           <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-8 items-center opacity-60">
             <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">500+</div>
-              <div className="text-sm text-muted-foreground">Happy Clients</div>
+              <div className="text-2xl font-bold text-foreground">
+                {loading ? '500+' : getContent('hero', 'stat_clients', '500+')}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {loading ? 'Happy Clients' : getContent('hero', 'stat_clients_label', 'Happy Clients')}
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">24-48h</div>
-              <div className="text-sm text-muted-foreground">Delivery Time</div>
+              <div className="text-2xl font-bold text-foreground">
+                {loading ? '24-48h' : getContent('hero', 'stat_delivery', '24-48h')}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {loading ? 'Delivery Time' : getContent('hero', 'stat_delivery_label', 'Delivery Time')}
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">99%</div>
-              <div className="text-sm text-muted-foreground">Satisfaction Rate</div>
+              <div className="text-2xl font-bold text-foreground">
+                {loading ? '99%' : getContent('hero', 'stat_satisfaction', '99%')}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {loading ? 'Satisfaction Rate' : getContent('hero', 'stat_satisfaction_label', 'Satisfaction Rate')}
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">5.0★</div>
-              <div className="text-sm text-muted-foreground">Average Rating</div>
+              <div className="text-2xl font-bold text-foreground">
+                {loading ? '5.0★' : getContent('hero', 'stat_rating', '5.0★')}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {loading ? 'Average Rating' : getContent('hero', 'stat_rating_label', 'Average Rating')}
+              </div>
             </div>
           </div>
         </div>

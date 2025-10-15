@@ -12,15 +12,28 @@ import { fetchUserData, type UserData } from "@/utils/api"
 import { 
   Coins, Flame, Users, Gift, Trophy, Copy, 
   ArrowUpRight, ArrowDownRight, CheckCircle, Clock,
-  LogOut, Settings as SettingsIcon
+  LogOut, Settings as SettingsIcon, Home, FileText,
+  Image, MessageSquare, Star, Users as UsersIcon,
+  Palette, Globe, BarChart3
 } from "lucide-react"
 import { SEOHead } from "@/components/seo-head"
+import { HomepageManager } from "@/admin/pages/Homepage"
+import { BlogList } from "@/admin/pages/Blogs"
+import { PortfolioGrid } from "@/admin/pages/Portfolio"
+import { ServiceList } from "@/admin/pages/Services"
+import { TestimonialList } from "@/admin/pages/Testimonials"
+import { UserList } from "@/admin/pages/Users"
+import { MediaLibrary } from "@/admin/pages/Media"
+import { SettingsForm } from "@/admin/pages/Settings"
+import { AnalyticsOverview } from "@/admin/pages/Analytics"
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [userData, setUserData] = useState<UserData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('overview')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     // Check authentication
@@ -29,6 +42,10 @@ export default function Dashboard() {
       navigate('/auth')
       return
     }
+
+    // Check if user is admin
+    const userRole = localStorage.getItem('userRole')
+    setIsAdmin(userRole === 'admin')
 
     // Load user data
     loadUserData()
@@ -97,6 +114,125 @@ export default function Dashboard() {
 
   const streakProgress = (userData.streak.current / userData.streak.nextMilestone) * 100
 
+  // If user is admin, show admin dashboard
+  if (isAdmin) {
+    return (
+      <>
+        <SEOHead 
+          title="Admin Dashboard - Adil GFX"
+          description="Manage website content, users, and settings"
+          url="https://adilgfx.com/dashboard"
+        />
+        <main className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Admin Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground mb-2">
+                  Admin Dashboard
+                </h1>
+                <p className="text-muted-foreground">
+                  Manage your website content and settings
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" asChild>
+                  <a href="/" target="_blank" rel="noopener noreferrer">
+                    <Globe className="h-4 w-4 mr-2" />
+                    View Site
+                  </a>
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            </div>
+
+            {/* Admin Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
+                <TabsTrigger value="overview" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Overview</span>
+                </TabsTrigger>
+                <TabsTrigger value="homepage" className="flex items-center gap-2">
+                  <Home className="h-4 w-4" />
+                  <span className="hidden sm:inline">Homepage</span>
+                </TabsTrigger>
+                <TabsTrigger value="blogs" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  <span className="hidden sm:inline">Blogs</span>
+                </TabsTrigger>
+                <TabsTrigger value="portfolio" className="flex items-center gap-2">
+                  <Image className="h-4 w-4" />
+                  <span className="hidden sm:inline">Portfolio</span>
+                </TabsTrigger>
+                <TabsTrigger value="services" className="flex items-center gap-2">
+                  <SettingsIcon className="h-4 w-4" />
+                  <span className="hidden sm:inline">Services</span>
+                </TabsTrigger>
+                <TabsTrigger value="testimonials" className="flex items-center gap-2">
+                  <Star className="h-4 w-4" />
+                  <span className="hidden sm:inline">Reviews</span>
+                </TabsTrigger>
+                <TabsTrigger value="users" className="flex items-center gap-2">
+                  <UsersIcon className="h-4 w-4" />
+                  <span className="hidden sm:inline">Users</span>
+                </TabsTrigger>
+                <TabsTrigger value="media" className="flex items-center gap-2">
+                  <Image className="h-4 w-4" />
+                  <span className="hidden sm:inline">Media</span>
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="flex items-center gap-2">
+                  <Palette className="h-4 w-4" />
+                  <span className="hidden sm:inline">Settings</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview">
+                <AnalyticsOverview />
+              </TabsContent>
+
+              <TabsContent value="homepage">
+                <HomepageManager />
+              </TabsContent>
+
+              <TabsContent value="blogs">
+                <BlogList />
+              </TabsContent>
+
+              <TabsContent value="portfolio">
+                <PortfolioGrid />
+              </TabsContent>
+
+              <TabsContent value="services">
+                <ServiceList />
+              </TabsContent>
+
+              <TabsContent value="testimonials">
+                <TestimonialList />
+              </TabsContent>
+
+              <TabsContent value="users">
+                <UserList />
+              </TabsContent>
+
+              <TabsContent value="media">
+                <MediaLibrary />
+              </TabsContent>
+
+              <TabsContent value="settings">
+                <SettingsForm />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </main>
+      </>
+    )
+  }
+
+  // Regular user dashboard
   return (
     <>
       <SEOHead 
@@ -110,10 +246,10 @@ export default function Dashboard() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2">
-                Welcome back, <span className="text-gradient-youtube">{userData.user.name}</span>!
+                Welcome back, <span className="text-gradient-youtube">{userData?.user?.name || 'User'}</span>!
               </h1>
               <p className="text-muted-foreground">
-                {userData.user.membershipTier} Member since {new Date(userData.user.joinDate).toLocaleDateString()}
+                {userData?.user?.membershipTier || 'Free'} Member since {userData?.user?.joinDate ? new Date(userData.user.joinDate).toLocaleDateString() : 'Recently'}
               </p>
             </div>
             <div className="flex gap-2">

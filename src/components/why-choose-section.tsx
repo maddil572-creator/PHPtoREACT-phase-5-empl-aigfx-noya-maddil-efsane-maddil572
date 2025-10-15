@@ -1,4 +1,5 @@
 import { Clock, Zap, Trophy, Heart, Star, Users, Award, CheckCircle } from "lucide-react"
+import { useHomepageContent } from "@/hooks/useHomepageContent"
 
 const reasons = [
   {
@@ -45,40 +46,50 @@ const reasons = [
   }
 ]
 
-const achievements = [
-  {
-    number: "500+",
-    label: "Happy Clients",
-    description: "Worldwide"
-  },
-  {
-    number: "10M+",
-    label: "Views Generated",
-    description: "For YouTube clients"
-  },
-  {
-    number: "$50M+",
-    label: "Revenue Impact",
-    description: "Client success stories"
-  },
-  {
-    number: "24h",
-    label: "Average Delivery",
-    description: "For standard projects"
-  }
-]
-
 export function WhyChooseSection() {
+  const { getContent, loading } = useHomepageContent()
+
+  const achievements = [
+    {
+      number: loading ? "500+" : getContent('why_choose', 'achievement_1_number', '500+'),
+      label: loading ? "Happy Clients" : getContent('why_choose', 'achievement_1_label', 'Happy Clients'),
+      description: loading ? "Worldwide" : getContent('why_choose', 'achievement_1_description', 'Worldwide')
+    },
+    {
+      number: loading ? "10M+" : getContent('why_choose', 'achievement_2_number', '10M+'),
+      label: loading ? "Views Generated" : getContent('why_choose', 'achievement_2_label', 'Views Generated'),
+      description: loading ? "For YouTube clients" : getContent('why_choose', 'achievement_2_description', 'For YouTube clients')
+    },
+    {
+      number: loading ? "$50M+" : getContent('why_choose', 'achievement_3_number', '$50M+'),
+      label: loading ? "Revenue Impact" : getContent('why_choose', 'achievement_3_label', 'Revenue Impact'),
+      description: loading ? "Client success stories" : getContent('why_choose', 'achievement_3_description', 'Client success stories')
+    },
+    {
+      number: loading ? "24h" : getContent('why_choose', 'achievement_4_number', '24h'),
+      label: loading ? "Average Delivery" : getContent('why_choose', 'achievement_4_label', 'Average Delivery'),
+      description: loading ? "For standard projects" : getContent('why_choose', 'achievement_4_description', 'For standard projects')
+    }
+  ]
   return (
     <section className="py-20 bg-surface">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-            Why Choose <span className="text-gradient-youtube">Adil</span>?
+            {loading ? (
+              <>Why Choose <span className="text-gradient-youtube">Adil</span>?</>
+            ) : (
+              <span dangerouslySetInnerHTML={{ 
+                __html: getContent('why_choose', 'section_title', 'Why Choose Adil?').replace('Adil', '<span class="text-gradient-youtube">Adil</span>')
+              }} />
+            )}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Trusted by 500+ businesses and creators worldwide. Here's what sets me apart from the competition.
+            {loading 
+              ? "Trusted by 500+ businesses and creators worldwide. Here's what sets me apart from the competition."
+              : getContent('why_choose', 'section_subtitle', "Trusted by 500+ businesses and creators worldwide. Here's what sets me apart from the competition.")
+            }
           </p>
         </div>
 
