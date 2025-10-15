@@ -18,6 +18,7 @@ import { ReturningVisitorBanner } from "@/components/returning-visitor-banner";
 import { AnalyticsConsentModal } from "@/components/analytics-consent-modal";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { DynamicPageRenderer } from "@/components/dynamic-page-renderer";
+import { ApiTest } from "@/components/ApiTest";
 import Home from "./pages/Home";
 import Portfolio from "./pages/Portfolio";
 import Services from "./pages/Services";
@@ -66,6 +67,7 @@ const App = () => (
                 <Route path="/user/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
                 <Route path="/user/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
                 <Route path="/user/tokens" element={<ProtectedRoute><Tokens /></ProtectedRoute>} />
+                <Route path="/api-test" element={<ApiTest />} />
                 <Route path="/page/:slug" element={<DynamicPageRenderer />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,0 +1,22 @@
+# Database Setup Instructions for Hostinger
+
+## Automatic Setup (Recommended)
+1. Upload all files to your domain root
+2. Visit: https://adilcreator.com/backend/install.php
+3. Follow the installation prompts
+
+## Manual Setup (if needed)
+1. Access Hostinger cPanel
+2. Go to phpMyAdmin
+3. Select database: u720615217_adil_db
+4. Import file: backend/database/hostinger_mysql_schema.sql
+5. Verify tables are created
+
+## Admin Access
+- URL: https://adilcreator.com/admin
+- Email: admin@adilcreator.com
+- Password: Muhadilmmad#11213
+
+## Testing
+- API Test: https://adilcreator.com/backend/api/test.php
+- Website: https://adilcreator.com

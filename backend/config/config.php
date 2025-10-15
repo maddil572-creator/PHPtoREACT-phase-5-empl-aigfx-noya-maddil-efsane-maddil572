@@ -5,10 +5,11 @@
  */
 
 // Load environment variables
-if (file_exists(__DIR__ . '/../.env')) {
-    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+if (file_exists(__DIR__ . '/../../.env')) {
+    $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') === false) continue;
         list($name, $value) = explode('=', $line, 2);
         $_ENV[trim($name)] = trim($value);
     }
@@ -24,6 +25,17 @@ define('RATE_LIMIT_REQUESTS', 100);
 define('RATE_LIMIT_WINDOW', 3600); // 1 hour
 
 // CORS settings
+define('ALLOWED_ORIGINS', [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8080',
+    'https://adilcreator.com',
+    'https://www.adilcreator.com'
+]);
+=======
 $frontendUrl = $_ENV['FRONTEND_URL'] ?? 'https://adilgfx.com';
 $allowedOrigins = [$frontendUrl];
 
@@ -70,7 +82,7 @@ header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // Error reporting
-if ($_ENV['APP_ENV'] === 'development') {
+if (($_ENV['APP_ENV'] ?? 'production') === 'development') {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
 } else {

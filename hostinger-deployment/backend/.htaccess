@@ -1,0 +1,31 @@
+# Backend Security Configuration
+RewriteEngine On
+
+# Route all requests through index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Protect sensitive directories
+<Files "composer.json">
+    Deny from all
+</Files>
+
+<Files ".env">
+    Deny from all
+</Files>
+
+<FilesMatch "\.(sql|log)$">
+    Deny from all
+</FilesMatch>
+
+# Allow uploads but prevent execution
+<Directory "uploads">
+    <Files "*">
+        SetHandler none
+        SetHandler default-handler
+        Options -ExecCGI
+        RemoveHandler .php .phtml .php3 .php4 .php5 .php6
+        RemoveType .php .phtml .php3 .php4 .php5 .php6
+    </Files>
+</Directory>

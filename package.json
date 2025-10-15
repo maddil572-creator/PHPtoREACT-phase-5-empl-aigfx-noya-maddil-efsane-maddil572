@@ -8,7 +8,12 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start:dev": "./start-dev.sh",
+    "start:dev:win": "start-dev.bat",
+    "test:api": "php backend/test_db.php",
+    "backend:start": "cd backend && php -S localhost:8000 index.php",
+    "backend:test": "curl -s http://localhost:8000/api/test.php | jq ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
