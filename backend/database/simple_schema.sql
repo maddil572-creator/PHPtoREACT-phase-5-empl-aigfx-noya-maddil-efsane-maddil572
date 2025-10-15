@@ -225,6 +225,21 @@ CREATE TABLE IF NOT EXISTS media (
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+-- FAQs Table
+CREATE TABLE IF NOT EXISTS faqs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    category TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'draft',
+    `order` INTEGER DEFAULT 0,
+    featured INTEGER NOT NULL DEFAULT 0,
+    views INTEGER DEFAULT 0,
+    helpful_votes INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Insert sample data
 INSERT OR IGNORE INTO users (email, password, name, role, status, email_verified) VALUES
 ('admin@adilcreator.com', '$2y$12$PXq0z7MbJKf/AQMEe6Fjsu6tZfjErrbYrGvtWyDnMa2my.xw46Xg2', 'Adil Creator Admin', 'admin', 'active', 1);
@@ -241,3 +256,21 @@ INSERT OR IGNORE INTO categories (name, slug, description, color, icon) VALUES
 
 INSERT OR IGNORE INTO services (name, slug, tagline, description, icon, category_id, features, pricing_tiers, delivery_time, popular, active) VALUES
 ('Premium Logo Design', 'premium-logo-design', 'Stand out with a unique brand identity', 'Professional logo design that captures your brand essence and makes you memorable.', 'palette', 1, '["Multiple concepts", "Unlimited revisions", "Vector files included"]', '[{"name":"Basic","price":99,"duration":"3-5 days"}]', '3-10 days', 1, 1);
+
+-- Sample FAQ data
+INSERT OR IGNORE INTO faqs (question, answer, category, status, `order`, featured) VALUES
+('How long does it typically take to complete a project?', 'Timeline varies by service: Logo design takes 2-7 days, thumbnails are delivered within 24-48 hours, and video editing ranges from 3-10 days depending on complexity. Rush delivery is available for an additional 50% fee.', 'General', 'published', 1, 1),
+('What''s included in the final delivery?', 'All projects include high-resolution files in multiple formats (PNG, JPG, and source files when applicable), commercial usage rights, and a basic style guide. Premium packages include additional formats like SVG, AI, and comprehensive brand guidelines.', 'General', 'published', 2, 0),
+('Do you offer unlimited revisions?', 'Revision policy varies by package. Basic packages include 2-3 revisions, Standard packages include 5 revisions, and Premium packages offer unlimited revisions. Additional revisions beyond the package limit are $25 each.', 'General', 'published', 3, 0),
+('What payment methods do you accept?', 'I accept PayPal, Stripe (credit/debit cards), bank transfers, and cryptocurrency. For larger projects, I offer payment plans with 50% upfront and 50% upon completion.', 'Pricing & Payment', 'published', 1, 0),
+('Are there any hidden fees?', 'No hidden fees! All pricing is transparent and listed upfront. The only additional costs would be optional add-ons like rush delivery (+50%), extra revisions ($25 each), or source files ($49) if not included in your package.', 'Pricing & Payment', 'published', 2, 0),
+('Do you offer refunds?', 'I offer a 100% satisfaction guarantee. If you''re not happy with the initial concepts and we can''t resolve it through revisions, I''ll provide a full refund. Once revisions begin and you approve directions, the project is considered accepted.', 'Pricing & Payment', 'published', 3, 0),
+('What information do you need to start a project?', 'I need your brand/channel name, target audience, style preferences, any existing brand elements, preferred colors, and 2-3 reference examples of designs you like. The more details you provide, the better I can match your vision.', 'Design Process', 'published', 1, 0),
+('Can I request specific changes during the design process?', 'Absolutely! Collaboration is key to great design. You can request changes to colors, fonts, layouts, or any other elements during the revision phase. I encourage feedback to ensure the final design exceeds your expectations.', 'Design Process', 'published', 2, 0),
+('What if I don''t like any of the initial concepts?', 'This rarely happens, but if none of the initial concepts hit the mark, I''ll create new concepts based on your feedback at no extra charge. Your satisfaction is my priority, and I''ll work until we find the perfect solution.', 'Design Process', 'published', 3, 0),
+('What file formats will I receive?', 'Standard delivery includes PNG and JPG files. Premium packages include SVG (vector), AI (Adobe Illustrator source), PSD (Photoshop source), and PDF formats. All files are provided in high resolution suitable for both web and print use.', 'File Formats & Usage', 'published', 1, 0),
+('Can I use the designs for commercial purposes?', 'Yes! All designs come with full commercial usage rights. You own the final design and can use it however you like - on products, marketing materials, websites, etc. I retain the right to showcase the work in my portfolio unless you request otherwise.', 'File Formats & Usage', 'published', 2, 0),
+('Will my designs work on social media platforms?', 'Absolutely! All designs are optimized for digital use and will look great on social media. I provide correctly sized versions for different platforms when needed, and ensure designs are mobile-friendly and web-optimized.', 'File Formats & Usage', 'published', 3, 0),
+('How do we communicate during the project?', 'I primarily use email for detailed communications and file sharing, WhatsApp for quick updates and questions, and can schedule video calls for complex projects. You''ll receive regular updates and can reach me anytime during business hours.', 'Communication & Support', 'published', 1, 0),
+('What timezone are you in and when are you available?', 'I''m available Monday-Friday, 9 AM - 6 PM EST, with extended hours for urgent projects. I typically respond to messages within 2 hours during business hours and within 24 hours on weekends.', 'Communication & Support', 'published', 2, 0),
+('Do you provide ongoing support after project completion?', 'Yes! I offer 30 days of free minor adjustments after delivery (small text changes, color tweaks, etc.). For major changes or new variations, I provide ongoing support at discounted rates for existing clients.', 'Communication & Support', 'published', 3, 0);
