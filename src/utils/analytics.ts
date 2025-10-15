@@ -60,6 +60,24 @@ export const AnalyticsEvents = {
   PORTFOLIO_VIEW: 'portfolio_view',
   SERVICE_VIEW: 'service_view',
   CTA_CLICK: 'cta_click',
+  
+  // New CTA and conversion events
+  CTA_IMPRESSION: 'cta_impression',
+  CTA_CONVERSION: 'cta_conversion',
+  LEAD_CAPTURED: 'lead_captured',
+  EXIT_INTENT_TRIGGERED: 'exit_intent_triggered',
+  EXIT_INTENT_DISMISSED: 'exit_intent_dismissed',
+  
+  // SEO and engagement events
+  INTERNAL_LINK_CLICK: 'internal_link_click',
+  RELATED_POST_CLICK: 'related_post_click',
+  BREADCRUMB_CLICK: 'breadcrumb_click',
+  SEARCH_PERFORMED: 'search_performed',
+  
+  // Funnel events
+  PRICING_ESTIMATE_GENERATED: 'pricing_estimate_generated',
+  QUOTE_REQUESTED: 'quote_requested',
+  PROJECT_INQUIRY: 'project_inquiry',
 } as const;
 
 /**

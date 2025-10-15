@@ -1,6 +1,10 @@
+import { useEffect } from "react"
 import { ChevronDown } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
+import { SEOHead } from "@/components/seo-head"
+import { BreadcrumbNavigation } from "@/components/breadcrumb-navigation"
+import { injectFAQSchemas } from "@/utils/faq-schema"
 
 const faqData = [
   {
@@ -91,9 +95,26 @@ const faqData = [
 ]
 
 export default function FAQ() {
+  useEffect(() => {
+    // Inject FAQ structured data for rich snippets
+    const cleanup = injectFAQSchemas(faqData);
+    return cleanup;
+  }, []);
+
   return (
-    <main className="pt-24 pb-20">
+    <>
+      <SEOHead
+        title="Frequently Asked Questions | Adil GFX - Design Services FAQ"
+        description="Get answers to common questions about logo design, YouTube thumbnails, video editing services, pricing, timelines, and more. Professional design services with transparent pricing."
+        keywords="FAQ, design services, logo design questions, YouTube thumbnail FAQ, video editing help, pricing questions, design process"
+        url="https://adilgfx.com/faq"
+      />
+      
+      <main className="pt-24 pb-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb Navigation */}
+        <BreadcrumbNavigation />
+        
         {/* Page header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
@@ -163,5 +184,6 @@ export default function FAQ() {
         </div>
       </div>
     </main>
+    </>
   )
 }

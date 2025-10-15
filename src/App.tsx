@@ -16,6 +16,7 @@ import { Chatbot } from "@/components/chatbot";
 import { FloatingWhatsApp } from "@/components/floating-whatsapp";
 import { ReturningVisitorBanner } from "@/components/returning-visitor-banner";
 import { AnalyticsConsentModal } from "@/components/analytics-consent-modal";
+import { ExitIntentPopup } from "@/components/exit-intent-popup";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { DynamicPageRenderer } from "@/components/dynamic-page-renderer";
 import { ApiTest } from "@/components/ApiTest";
@@ -74,6 +75,7 @@ const App = () => (
               <Footer />
               <Chatbot />
               <FloatingWhatsApp />
+              <ExitIntentPopup />
               <AnalyticsConsentModal />
             </BrowserRouter>
                 </ErrorBoundary>
