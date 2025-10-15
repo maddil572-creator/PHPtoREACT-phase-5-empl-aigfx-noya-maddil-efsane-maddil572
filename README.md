@@ -1,6 +1,10 @@
-# Adil GFX - Professional Design Platform
+# Adil Creator - Professional Design Platform
 
 A complete full-stack web application for professional design services including logo design, YouTube thumbnails, and video editing.
+
+**🌐 Live Website:** https://adilcreator.com  
+**👤 Admin Panel:** https://adilcreator.com/admin  
+**📧 Contact:** admin@adilcreator.com
 
 ## 🚀 Quick Start
 
@@ -54,9 +58,9 @@ A complete full-stack web application for professional design services including
 - **Admin Panel:** http://localhost:8080/admin
 - **API Test:** http://localhost:8080/api-test
 
-### Default Admin Credentials
-- **Email:** admin@adilgfx.com
-- **Password:** admin123
+### Admin Credentials
+- **Email:** admin@adilcreator.com
+- **Password:** Muhadilmmad#11213
 
 ## 🏗️ Tech Stack
 
@@ -101,7 +105,8 @@ Key variables in `.env`:
 - `SMTP_*` - Email configuration
 
 ### Database
-Uses SQLite for easy setup. Database file: `backend/database/adilgfx.sqlite`
+**Production:** MySQL on Hostinger (u720615217_adil_db)  
+**Development:** SQLite for local testing
 
 ## 🎯 Features
 

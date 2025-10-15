@@ -78,7 +78,7 @@ try {
     if ($driver === 'sqlite') {
         $schemaFile = __DIR__ . '/database/simple_schema.sql';
     } else {
-        $schemaFile = __DIR__ . '/database/unified_schema.sql';
+        $schemaFile = __DIR__ . '/database/hostinger_mysql_schema.sql';
     }
     
     if (!file_exists($schemaFile)) {
