@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GlobalSettingsProvider } from "@/components/global-settings-provider";
@@ -30,9 +30,9 @@ import BlogDetail from "./pages/BlogDetail";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import { Login, Register, Dashboard as UserDashboard, Profile as UserProfile, Tokens } from "./user/pages";
+import { AdminApp } from "./admin/AdminApp";
 
 const queryClient = new QueryClient();
 
@@ -62,7 +62,12 @@ const App = () => (
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<ProtectedRoute requiredRoles={['admin', 'editor', 'viewer']}><Dashboard /></ProtectedRoute>} />
+                
+                {/* Unified Admin System */}
+                <Route path="/admin/*" element={<AdminApp />} />
+                <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
+                
+                {/* User System */}
                 <Route path="/user/login" element={<Login />} />
                 <Route path="/user/register" element={<Register />} />
                 <Route path="/user/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
