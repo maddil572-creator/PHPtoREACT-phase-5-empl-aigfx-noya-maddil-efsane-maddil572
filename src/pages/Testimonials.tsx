@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from "react"
 import { usePublicTestimonials } from "@/hooks/usePublicTestimonials"
+import { useSiteLinks } from "@/hooks/useSiteLinks"
 import { SEOHead } from "@/components/seo-head"
 
 export default function Testimonials() {
   const { testimonials, loading, error } = usePublicTestimonials(false) // Get all testimonials
+  const { links } = useSiteLinks()
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const nextTestimonial = () => {
@@ -207,7 +209,7 @@ export default function Testimonials() {
             ) : (
               <div className="text-center py-16">
                 <p className="text-muted-foreground mb-8">No testimonials available at the moment.</p>
-                <Button onClick={() => window.location.href = '/contact'}>
+                <Button onClick={() => window.location.href = links.contact}>
                   Be Our First Review
                 </Button>
               </div>
@@ -252,7 +254,7 @@ export default function Testimonials() {
               <Button 
                 size="lg"
                 className="bg-gradient-youtube hover:shadow-glow font-medium px-8"
-                onClick={() => window.location.href = '/contact'}
+                onClick={() => window.location.href = links.contact}
               >
                 Start Your Project
               </Button>
@@ -260,7 +262,7 @@ export default function Testimonials() {
                 size="lg"
                 variant="outline"
                 className="border-2 border-youtube-red text-youtube-red hover:bg-youtube-red hover:text-white font-medium px-8"
-                onClick={() => window.location.href = '/portfolio'}
+                onClick={() => window.location.href = links.portfolio}
               >
                 View Our Work
               </Button>

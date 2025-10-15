@@ -6,11 +6,13 @@
 import { useState, useEffect } from 'react';
 import { X, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSiteLinks } from '@/hooks/useSiteLinks';
 
 const LAST_VISIT_KEY = 'last_visit';
 const BANNER_DISMISSED_KEY = 'returning_banner_dismissed';
 
 export function ReturningVisitorBanner() {
+  const { links } = useSiteLinks();
   const [isVisible, setIsVisible] = useState(false);
   const [daysSinceLastVisit, setDaysSinceLastVisit] = useState(0);
 
@@ -50,7 +52,7 @@ export function ReturningVisitorBanner() {
 
   const handleClaim = () => {
     // Navigate to contact with special offer
-    window.location.href = '/contact?promo=returning15';
+    window.location.href = `${links.contact}?promo=returning15`;
     handleDismiss();
   };
 

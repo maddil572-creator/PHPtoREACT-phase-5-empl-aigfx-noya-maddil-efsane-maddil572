@@ -11,6 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Calculator, CheckCircle } from 'lucide-react';
 import { useAnalytics } from '@/utils/analytics';
+import { useSiteLinks } from '@/hooks/useSiteLinks';
 
 interface PricingCalculatorProps {
   className?: string;

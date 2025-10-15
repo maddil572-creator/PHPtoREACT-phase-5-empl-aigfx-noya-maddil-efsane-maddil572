@@ -5,9 +5,11 @@ import { SEOHead } from "@/components/seo-head"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAnalytics } from "@/utils/analytics"
 import { usePublicServices } from "@/hooks/usePublicServices"
+import { useSiteLinks } from "@/hooks/useSiteLinks"
 
 export default function Services() {
   const { services, loading, error } = usePublicServices()
+  const { links } = useSiteLinks()
   const { trackEvent } = useAnalytics()
 
   const handlePackageClick = (serviceName: string, packageName: string) => {
@@ -62,7 +64,7 @@ export default function Services() {
             <div className="text-center py-16">
               <h1 className="text-4xl font-bold text-foreground mb-4">Services Coming Soon</h1>
               <p className="text-muted-foreground mb-8">We're updating our services. Please check back later or contact us directly.</p>
-              <Button onClick={() => window.location.href = '/contact'}>Contact Us</Button>
+              <Button onClick={() => window.location.href = links.contact}>Contact Us</Button>
             </div>
           </div>
         </main>
@@ -180,7 +182,7 @@ export default function Services() {
               <Button 
                 size="lg"
                 className="bg-gradient-youtube hover:shadow-glow font-medium px-8"
-                onClick={() => window.location.href = '/contact'}
+                onClick={() => window.location.href = links.contact}
               >
                 Start Your Project
               </Button>
@@ -188,7 +190,7 @@ export default function Services() {
                 size="lg"
                 variant="outline"
                 className="border-2 border-youtube-red text-youtube-red hover:bg-youtube-red hover:text-white font-medium px-8"
-                onClick={() => window.location.href = '/portfolio'}
+                onClick={() => window.location.href = links.portfolio}
               >
                 View Portfolio
               </Button>
