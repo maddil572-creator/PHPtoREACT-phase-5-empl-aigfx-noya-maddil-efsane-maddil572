@@ -103,11 +103,11 @@ After running the setup script:
 - **Email Templates**: customize notifications
 
 ### 🗄️ Database Features
-- **Complete schema** with 15+ tables
-- **Sample data** included (blogs, portfolio, services)
-- **Foreign keys** and constraints
-- **Indexes** for performance
-- **Migration system** ready
+- **Unified schema** with 20 optimized tables
+- **Complete sample data** (blogs, portfolio, services, users)
+- **Foreign keys** and referential integrity
+- **Optimized indexes** for performance
+- **Single-file deployment** ready
 
 ## 🔧 API Endpoints
 
@@ -157,8 +157,7 @@ adilgfx/
 │   │   ├── config.php      # App config
 │   │   └── database.php    # DB connection
 │   ├── database/           # Database files
-│   │   ├── schema.sql      # Database structure
-│   │   └── seed_data.sql   # Sample data
+│   │   └── unified_schema.sql # Complete database with data
 │   ├── middleware/         # Middleware
 │   ├── uploads/            # Uploaded files
 │   └── index.php           # Main entry point
@@ -262,8 +261,7 @@ chmod 644 backend/.htaccess
 
 ### 5. Configure Database
 - Create production database
-- Import `backend/database/schema.sql`
-- Run `php backend/install.php`
+- Run `php backend/install.php` (imports unified schema automatically)
 
 ## 📱 Mobile Responsive
 

@@ -59,11 +59,11 @@ try {
     }
     
     // Install database schema
-    echo "📋 Installing database schema...\n";
-    $schemaFile = __DIR__ . '/database/schema.sql';
+    echo "📋 Installing unified database schema...\n";
+    $schemaFile = __DIR__ . '/database/unified_schema.sql';
     
     if (!file_exists($schemaFile)) {
-        throw new Exception("Schema file not found: $schemaFile");
+        throw new Exception("Unified schema file not found: $schemaFile");
     }
     
     $schema = file_get_contents($schemaFile);
@@ -97,50 +97,17 @@ try {
     
     skip_schema:
     
-    // Check if sample data already exists
-    echo "🔍 Checking for existing data...\n";
+    // Check if admin user already exists
+    echo "🔍 Checking for existing admin user...\n";
     $stmt = $db->query("SELECT COUNT(*) FROM users WHERE role = 'admin'");
     $adminCount = $stmt->fetchColumn();
     
     if ($adminCount > 0) {
-        echo "👤 Admin user already exists. Skipping sample data installation.\n";
+        echo "👤 Admin user already exists. Database setup complete.\n";
         echo "📧 Admin login: admin@adilgfx.com\n";
         echo "🔑 Password: admin123\n\n";
     } else {
-        // Install sample data
-        echo "📊 Installing sample data...\n";
-        $seedFile = __DIR__ . '/database/seed_data.sql';
-        
-        if (!file_exists($seedFile)) {
-            throw new Exception("Seed data file not found: $seedFile");
-        }
-        
-        $seedData = file_get_contents($seedFile);
-        
-        // Remove comments and split by semicolon
-        $seedData = preg_replace('/--.*$/m', '', $seedData);
-        $queries = array_filter(array_map('trim', explode(';', $seedData)));
-        
-        $insertCount = 0;
-        foreach ($queries as $query) {
-            if (empty($query) || stripos($query, 'USE ') !== false) {
-                continue;
-            }
-            
-            try {
-                $db->exec($query);
-                if (stripos($query, 'INSERT INTO') !== false) {
-                    $insertCount++;
-                }
-            } catch (PDOException $e) {
-                // Skip duplicate entries
-                if (strpos($e->getMessage(), 'Duplicate entry') === false) {
-                    echo "⚠️  Warning: " . $e->getMessage() . "\n";
-                }
-            }
-        }
-        
-        echo "✅ Sample data installed successfully! ($insertCount records inserted)\n\n";
+        echo "✅ Unified schema with sample data installed successfully!\n\n";
         
         echo "👤 Admin Account Created:\n";
         echo "📧 Email: admin@adilgfx.com\n";
