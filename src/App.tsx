@@ -52,6 +52,7 @@ const App = () => (
             <BrowserRouter>
               <ScrollToTop />
               <DynamicFavicon />
+              <DynamicTheme />
               <Navigation />
               <ReturningVisitorBanner />
               <Routes>

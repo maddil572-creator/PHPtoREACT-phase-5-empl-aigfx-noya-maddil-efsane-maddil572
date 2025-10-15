@@ -19,6 +19,9 @@ import {
 import { SEOHead } from "@/components/seo-head"
 import { HomepageManager } from "@/admin/pages/Homepage"
 import { PageManager } from "@/admin/pages/Pages"
+import { LayoutManager } from "@/admin/pages/Layout"
+import { CarouselManager } from "@/admin/pages/Carousels"
+import { TagManager } from "@/admin/pages/Tags"
 import { BlogList } from "@/admin/pages/Blogs"
 import { PortfolioGrid } from "@/admin/pages/Portfolio"
 import { ServiceList } from "@/admin/pages/Services"
@@ -156,7 +159,7 @@ export default function Dashboard() {
 
             {/* Admin Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-14">
+              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-17">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
                   <span className="hidden sm:inline">Overview</span>
