@@ -1,144 +1,112 @@
 <?php
 /**
- * Admin Translations API
- * Admin-only endpoint for managing translations
+ * Admin Translations API Endpoint
  */
 
 header('Content-Type: application/json');
-require_once __DIR__ . '/../../middleware/cors.php';
-require_once __DIR__ . '/../../classes/TranslationManager.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../classes/Auth.php';
 
-$auth = new Auth();
-$user = $auth->validateToken();
-
-if (!$user || $user['role'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Admin access required']);
-    exit;
+function authenticateAdmin() {
+    $headers = getallheaders();
+    $token = null;
+    if (isset($headers['Authorization']) && preg_match('/Bearer\s+(.*)$/i', $headers['Authorization'], $matches)) {
+        $token = $matches[1];
+    }
+    if (!$token) return ['success' => false, 'error' => 'Authentication required'];
+    
+    $auth = new Auth();
+    $result = $auth->verifyToken($token);
+    if (!$result['success']) return $result;
+    
+    if (!in_array($result['data']['user']['role'], ['admin', 'editor'])) {
+        return ['success' => false, 'error' => 'Admin access required'];
+    }
+    
+    return ['success' => true, 'user' => $result['data']['user']];
 }
-
-$method = $_SERVER['REQUEST_METHOD'];
 
 try {
-    $translationManager = new TranslationManager();
-
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $authResult = authenticateAdmin();
+    if (!$authResult['success']) {
+        http_response_code(401);
+        echo json_encode($authResult);
+        exit;
+    }
+    
+    $method = $_SERVER['REQUEST_METHOD'];
+    
     switch ($method) {
         case 'GET':
-            handleAdminGet($translationManager);
+            // Return basic translation structure
+            // In a real app, you'd have a translations table
+            $translations = [
+                'en' => [
+                    'common' => [
+                        'home' => 'Home',
+                        'about' => 'About',
+                        'services' => 'Services',
+                        'portfolio' => 'Portfolio',
+                        'blog' => 'Blog',
+                        'contact' => 'Contact',
+                        'get_started' => 'Get Started',
+                        'learn_more' => 'Learn More',
+                        'read_more' => 'Read More',
+                        'view_all' => 'View All'
+                    ],
+                    'hero' => [
+                        'title' => 'Transform Your Brand',
+                        'subtitle' => 'Professional Design Services',
+                        'description' => 'Get premium logo design, YouTube thumbnails, and video editing services that make your brand stand out from the competition.'
+                    ]
+                ],
+                'es' => [
+                    'common' => [
+                        'home' => 'Inicio',
+                        'about' => 'Acerca de',
+                        'services' => 'Servicios',
+                        'portfolio' => 'Portafolio',
+                        'blog' => 'Blog',
+                        'contact' => 'Contacto',
+                        'get_started' => 'Comenzar',
+                        'learn_more' => 'Saber Más',
+                        'read_more' => 'Leer Más',
+                        'view_all' => 'Ver Todo'
+                    ],
+                    'hero' => [
+                        'title' => 'Transforma Tu Marca',
+                        'subtitle' => 'Servicios de Diseño Profesional',
+                        'description' => 'Obtén diseño de logos premium, miniaturas de YouTube y servicios de edición de video que hacen que tu marca se destaque de la competencia.'
+                    ]
+                ]
+            ];
+            
+            $language = $_GET['language'] ?? 'en';
+            
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'language' => $language,
+                    'translations' => $translations[$language] ?? $translations['en']
+                ]
+            ]);
             break;
-
-        case 'POST':
-            handleAdminPost($translationManager);
-            break;
-
-        case 'PUT':
-            handleAdminPut($translationManager);
-            break;
-
-        case 'DELETE':
-            handleAdminDelete($translationManager);
-            break;
-
+            
         default:
             http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
+            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
             break;
     }
-
+    
 } catch (Exception $e) {
-    error_log("Admin Translations API error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
-        'error' => 'Server error',
-        'message' => $e->getMessage()
+        'success' => false,
+        'error' => 'Internal server error',
+        'message' => $_ENV['APP_ENV'] === 'development' ? $e->getMessage() : 'Something went wrong'
     ]);
-}
-
-function handleAdminGet($translationManager) {
-    $langCode = $_GET['lang_code'] ?? 'en';
-    $contentType = $_GET['content_type'] ?? null;
-    $manualOnly = isset($_GET['manual_only']) ? filter_var($_GET['manual_only'], FILTER_VALIDATE_BOOLEAN) : false;
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
-
-    $result = $translationManager->getAdminTranslations(
-        $langCode,
-        $contentType,
-        $manualOnly,
-        $page,
-        $limit
-    );
-
-    echo json_encode([
-        'success' => true,
-        'data' => $result['items'],
-        'pagination' => $result['pagination']
-    ]);
-}
-
-function handleAdminPost($translationManager) {
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    if (!$data) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid JSON data']);
-        return;
-    }
-
-    $action = $data['action'] ?? 'save';
-
-    if ($action === 'bulk_translate') {
-        $contentType = $data['content_type'] ?? null;
-        $targetLang = $data['target_lang'] ?? null;
-        $limit = $data['limit'] ?? 100;
-
-        if (!$contentType || !$targetLang) {
-            http_response_code(400);
-            echo json_encode(['error' => 'content_type and target_lang are required']);
-            return;
-        }
-
-        $result = $translationManager->bulkAutoTranslate($contentType, $targetLang, $limit);
-
-        echo json_encode([
-            'success' => true,
-            'message' => "Bulk translation completed",
-            'result' => $result
-        ]);
-        return;
-    }
-
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid action']);
-}
-
-function handleAdminPut($translationManager) {
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    if (!$data || !isset($data['id'])) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid data or missing ID']);
-        return;
-    }
-
-    $result = $translationManager->saveTranslation(
-        $data['content_type'],
-        $data['content_id'] ?? null,
-        $data['field_name'],
-        $data['lang_code'],
-        $data['original_text'] ?? '',
-        $data['translated_text'],
-        true
-    );
-
-    echo json_encode([
-        'success' => $result,
-        'message' => 'Translation updated successfully'
-    ]);
-}
-
-function handleAdminDelete($translationManager) {
-    http_response_code(501);
-    echo json_encode(['error' => 'Delete not implemented']);
 }

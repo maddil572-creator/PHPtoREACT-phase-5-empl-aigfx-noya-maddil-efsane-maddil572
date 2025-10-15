@@ -1,173 +1,148 @@
 <?php
 /**
  * Pages API Endpoint
- * Handles dynamic page management
  */
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../classes/PageManager.php';
+require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../middleware/cors.php';
-require_once __DIR__ . '/../middleware/rate_limit.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
-$path_info = $_SERVER['PATH_INFO'] ?? '';
-$page_manager = new PageManager();
-$auth = new Auth();
+$pathParts = explode('/', trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/'));
+$pageId = (count($pathParts) >= 3 && is_numeric(end($pathParts))) ? (int)end($pathParts) : null;
+$slug = (count($pathParts) >= 3 && !is_numeric(end($pathParts))) ? end($pathParts) : null;
+
+function authenticateUser() {
+    $headers = getallheaders();
+    $token = null;
+    if (isset($headers['Authorization']) && preg_match('/Bearer\s+(.*)$/i', $headers['Authorization'], $matches)) {
+        $token = $matches[1];
+    }
+    if (!$token) return ['success' => false, 'error' => 'Authentication required'];
+    
+    $auth = new Auth();
+    $result = $auth->verifyToken($token);
+    return $result['success'] ? ['success' => true, 'user' => $result['data']['user']] : $result;
+}
 
 try {
+    $database = new Database();
+    $db = $database->getConnection();
+    
     switch ($method) {
         case 'GET':
-            if (empty($path_info) || $path_info === '/') {
-                // Get all pages (admin) or navigation pages (public)
-                $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-                $token = str_replace('Bearer ', '', $token);
+            if ($pageId || $slug) {
+                $field = $pageId ? 'id' : 'slug';
+                $value = $pageId ?: $slug;
                 
-                $auth_result = $auth->verifyToken($token);
-                $isAdmin = $auth_result['success'] && $auth_result['role'] === 'admin';
-
-                if ($isAdmin) {
-                    $pages = $page_manager->getAllPages();
-                } else {
-                    $pages = $page_manager->getNavigationPages();
-                }
+                $stmt = $db->prepare("
+                    SELECT p.*, u.name as author_name
+                    FROM pages p
+                    LEFT JOIN users u ON p.author_id = u.id
+                    WHERE p.$field = ? AND p.status = 'published'
+                ");
+                $stmt->execute([$value]);
+                $page = $stmt->fetch();
                 
-                echo json_encode($pages);
-            } elseif (preg_match('/^\/(.+)$/', $path_info, $matches)) {
-                // Get single page by slug
-                $slug = $matches[1];
-                $page = $page_manager->getPageBySlug($slug);
-                
-                if ($page) {
-                    echo json_encode($page);
-                } else {
+                if (!$page) {
                     http_response_code(404);
-                    echo json_encode(['error' => 'Page not found']);
+                    echo json_encode(['success' => false, 'error' => 'Page not found']);
+                    break;
                 }
+                
+                // Increment view count
+                $stmt = $db->prepare("UPDATE pages SET views = views + 1 WHERE id = ?");
+                $stmt->execute([$page['id']]);
+                
+                $page['sections'] = json_decode($page['sections'] ?? '[]', true);
+                
+                echo json_encode(['success' => true, 'data' => $page]);
+            } else {
+                $stmt = $db->prepare("
+                    SELECT id, title, slug, template, show_in_menu, menu_order, views, created_at
+                    FROM pages 
+                    WHERE status = 'published'
+                    ORDER BY menu_order ASC, title ASC
+                ");
+                $stmt->execute();
+                $pages = $stmt->fetchAll();
+                
+                echo json_encode(['success' => true, 'data' => $pages]);
             }
             break;
-
-        case 'POST':
-            // Create new page (admin only)
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
             
-            $auth_result = $auth->verifyToken($token);
-            if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
+        case 'POST':
+            $authResult = authenticateUser();
+            if (!$authResult['success']) {
                 http_response_code(401);
-                echo json_encode(['error' => 'Unauthorized']);
+                echo json_encode($authResult);
                 break;
             }
-
+            
+            if (!in_array($authResult['user']['role'], ['admin', 'editor'])) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Permission denied']);
+                break;
+            }
+            
             $input = json_decode(file_get_contents('php://input'), true);
             
-            if (!$input || !isset($input['title'])) {
+            if (!isset($input['title'])) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Missing required fields']);
+                echo json_encode(['success' => false, 'error' => 'Title is required']);
                 break;
             }
-
-            if ($path_info === '/reorder') {
-                // Reorder pages
-                if (!isset($input['pageOrders'])) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Missing page orders']);
-                    break;
-                }
-
-                $result = $page_manager->reorderPages($input['pageOrders']);
-                
-                if ($result['success']) {
-                    echo json_encode(['message' => 'Pages reordered successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            } else {
-                // Create new page
-                $result = $page_manager->createPage($input);
-                
-                if ($result['success']) {
-                    http_response_code(201);
-                    echo json_encode([
-                        'message' => 'Page created successfully',
-                        'id' => $result['id'],
-                        'slug' => $result['slug']
-                    ]);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            }
-            break;
-
-        case 'PUT':
-            // Update page (admin only)
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
             
-            $auth_result = $auth->verifyToken($token);
-            if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
-                http_response_code(401);
-                echo json_encode(['error' => 'Unauthorized']);
-                break;
-            }
-
-            if (preg_match('/^\/(\d+)$/', $path_info, $matches)) {
-                $page_id = $matches[1];
-                $input = json_decode(file_get_contents('php://input'), true);
-                
-                if (!$input) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Invalid JSON data']);
-                    break;
-                }
-
-                $result = $page_manager->updatePage($page_id, $input);
-                
-                if ($result['success']) {
-                    echo json_encode(['message' => 'Page updated successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            }
-            break;
-
-        case 'DELETE':
-            // Delete page (admin only)
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
+            $slug = isset($input['slug']) ? trim($input['slug']) : strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $input['title'])));
             
-            $auth_result = $auth->verifyToken($token);
-            if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
-                http_response_code(401);
-                echo json_encode(['error' => 'Unauthorized']);
-                break;
+            // Ensure unique slug
+            $originalSlug = $slug;
+            $counter = 1;
+            while (true) {
+                $stmt = $db->prepare("SELECT id FROM pages WHERE slug = ?");
+                $stmt->execute([$slug]);
+                if (!$stmt->fetch()) break;
+                $slug = $originalSlug . '-' . $counter++;
             }
-
-            if (preg_match('/^\/(\d+)$/', $path_info, $matches)) {
-                $page_id = $matches[1];
-                $result = $page_manager->deletePage($page_id);
-                
-                if ($result['success']) {
-                    echo json_encode(['message' => 'Page deleted successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            }
+            
+            $stmt = $db->prepare("
+                INSERT INTO pages (
+                    title, slug, content, template, sections, status, featured,
+                    show_in_menu, menu_order, parent_id, meta_title, meta_description,
+                    meta_keywords, custom_css, custom_js, author_id, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ");
+            
+            $stmt->execute([
+                trim($input['title']),
+                $slug,
+                trim($input['content'] ?? ''),
+                $input['template'] ?? 'default',
+                json_encode($input['sections'] ?? []),
+                $input['status'] ?? 'draft',
+                $input['featured'] ?? 0,
+                $input['show_in_menu'] ?? 0,
+                $input['menu_order'] ?? null,
+                $input['parent_id'] ?? null,
+                trim($input['meta_title'] ?? ''),
+                trim($input['meta_description'] ?? ''),
+                trim($input['meta_keywords'] ?? ''),
+                trim($input['custom_css'] ?? ''),
+                trim($input['custom_js'] ?? ''),
+                $authResult['user']['id']
+            ]);
+            
+            echo json_encode(['success' => true, 'message' => 'Page created successfully', 'data' => ['id' => $db->lastInsertId(), 'slug' => $slug]]);
             break;
-
+            
         default:
             http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
+            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
             break;
     }
-
+    
 } catch (Exception $e) {
-    error_log("Pages API error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Internal server error']);
+    echo json_encode(['success' => false, 'error' => 'Internal server error', 'message' => $_ENV['APP_ENV'] === 'development' ? $e->getMessage() : 'Something went wrong']);
 }

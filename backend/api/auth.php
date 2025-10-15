@@ -1,130 +1,275 @@
 <?php
 /**
  * Authentication API Endpoint
- * Handles user registration, login, and token verification
+ * Handles login, registration, token verification, and password management
  */
 
 header('Content-Type: application/json');
+
+// Load dependencies
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../middleware/cors.php';
-require_once __DIR__ . '/../middleware/rate_limit.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
-$path_info = $_SERVER['PATH_INFO'] ?? '';
-$auth = new Auth();
+$path = $_SERVER['REQUEST_URI'];
+
+// Parse the path to get the action
+$pathParts = explode('/', trim(parse_url($path, PHP_URL_PATH), '/'));
+$action = end($pathParts);
+
+// Remove 'auth.php' from action if present
+if ($action === 'auth.php') {
+    $action = $_GET['action'] ?? 'verify';
+}
 
 try {
+    $auth = new Auth();
+    
     switch ($method) {
         case 'POST':
             $input = json_decode(file_get_contents('php://input'), true);
             
-            if (!$input) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Invalid JSON data']);
-                break;
-            }
-
-            if ($path_info === '/register') {
-                // User registration
-                if (!isset($input['email'], $input['password'], $input['name'])) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Missing required fields']);
+            switch ($action) {
+                case 'login':
+                    if (!isset($input['email']) || !isset($input['password'])) {
+                        http_response_code(400);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Email and password are required'
+                        ]);
+                        break;
+                    }
+                    
+                    $result = $auth->login(
+                        $input['email'],
+                        $input['password'],
+                        $input['remember_me'] ?? false
+                    );
+                    
+                    http_response_code($result['success'] ? 200 : 401);
+                    echo json_encode($result);
                     break;
-                }
-
-                // Validate input
-                if (!filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Invalid email format']);
+                    
+                case 'register':
+                    if (!isset($input['email']) || !isset($input['password']) || !isset($input['name'])) {
+                        http_response_code(400);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Email, password, and name are required'
+                        ]);
+                        break;
+                    }
+                    
+                    $result = $auth->register(
+                        $input['email'],
+                        $input['password'],
+                        $input['name'],
+                        $input['role'] ?? 'user'
+                    );
+                    
+                    http_response_code($result['success'] ? 201 : 400);
+                    echo json_encode($result);
                     break;
-                }
-
-                if (strlen($input['password']) < 8) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Password must be at least 8 characters']);
+                    
+                case 'logout':
+                    $token = $this->extractToken();
+                    
+                    if (!$token) {
+                        http_response_code(401);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Token required'
+                        ]);
+                        break;
+                    }
+                    
+                    $result = $auth->logout($token);
+                    echo json_encode($result);
                     break;
-                }
-
-                $result = $auth->register($input['email'], $input['password'], $input['name']);
-                
-                if ($result['success']) {
-                    http_response_code(201);
+                    
+                case 'change-password':
+                    $token = $this->extractToken();
+                    
+                    if (!$token) {
+                        http_response_code(401);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Authentication required'
+                        ]);
+                        break;
+                    }
+                    
+                    $tokenData = $auth->verifyToken($token);
+                    if (!$tokenData['success']) {
+                        http_response_code(401);
+                        echo json_encode($tokenData);
+                        break;
+                    }
+                    
+                    if (!isset($input['current_password']) || !isset($input['new_password'])) {
+                        http_response_code(400);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Current password and new password are required'
+                        ]);
+                        break;
+                    }
+                    
+                    $result = $auth->changePassword(
+                        $tokenData['data']['user']['id'],
+                        $input['current_password'],
+                        $input['new_password']
+                    );
+                    
+                    http_response_code($result['success'] ? 200 : 400);
+                    echo json_encode($result);
+                    break;
+                    
+                case 'forgot-password':
+                    if (!isset($input['email'])) {
+                        http_response_code(400);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Email is required'
+                        ]);
+                        break;
+                    }
+                    
+                    $result = $auth->requestPasswordReset($input['email']);
+                    echo json_encode($result);
+                    break;
+                    
+                case 'reset-password':
+                    if (!isset($input['token']) || !isset($input['password'])) {
+                        http_response_code(400);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Token and password are required'
+                        ]);
+                        break;
+                    }
+                    
+                    $result = $auth->resetPassword($input['token'], $input['password']);
+                    
+                    http_response_code($result['success'] ? 200 : 400);
+                    echo json_encode($result);
+                    break;
+                    
+                default:
+                    http_response_code(404);
                     echo json_encode([
-                        'message' => 'Account created successfully',
-                        'user_id' => $result['user_id']
+                        'success' => false,
+                        'error' => 'Action not found'
                     ]);
-                } else {
-                    http_response_code(400);
-                    echo json_encode(['error' => $result['message']]);
-                }
-
-            } elseif ($path_info === '/login') {
-                // User login
-                if (!isset($input['email'], $input['password'])) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Missing email or password']);
                     break;
-                }
-
-                $result = $auth->login($input['email'], $input['password']);
-                
-                if ($result['success']) {
-                    echo json_encode([
-                        'message' => $result['message'],
-                        'token' => $result['token'],
-                        'user' => $result['user']
-                    ]);
-                } else {
-                    http_response_code(401);
-                    echo json_encode(['error' => $result['message']]);
-                }
-
-            } else {
-                http_response_code(404);
-                echo json_encode(['error' => 'Endpoint not found']);
             }
             break;
-
+            
         case 'GET':
-            if ($path_info === '/verify') {
-                // Verify token
-                $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-                $token = str_replace('Bearer ', '', $token);
-                
-                if (!$token) {
-                    http_response_code(401);
-                    echo json_encode(['error' => 'No token provided']);
+            switch ($action) {
+                case 'verify':
+                    $token = $this->extractToken();
+                    
+                    if (!$token) {
+                        http_response_code(401);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Token required'
+                        ]);
+                        break;
+                    }
+                    
+                    $result = $auth->verifyToken($token);
+                    
+                    http_response_code($result['success'] ? 200 : 401);
+                    echo json_encode($result);
                     break;
-                }
-
-                $result = $auth->verifyToken($token);
-                
-                if ($result['success']) {
-                    $user = $auth->getCurrentUser($result['user_id']);
+                    
+                case 'profile':
+                    $token = $this->extractToken();
+                    
+                    if (!$token) {
+                        http_response_code(401);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'Authentication required'
+                        ]);
+                        break;
+                    }
+                    
+                    $tokenData = $auth->verifyToken($token);
+                    if (!$tokenData['success']) {
+                        http_response_code(401);
+                        echo json_encode($tokenData);
+                        break;
+                    }
+                    
+                    $user = $auth->getUserById($tokenData['data']['user']['id']);
+                    
+                    if ($user) {
+                        echo json_encode([
+                            'success' => true,
+                            'data' => ['user' => $user]
+                        ]);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode([
+                            'success' => false,
+                            'error' => 'User not found'
+                        ]);
+                    }
+                    break;
+                    
+                default:
+                    // Return API info
                     echo json_encode([
-                        'valid' => true,
-                        'user' => $user
+                        'success' => true,
+                        'message' => 'Authentication API',
+                        'endpoints' => [
+                            'POST /auth.php/login' => 'User login',
+                            'POST /auth.php/register' => 'User registration',
+                            'POST /auth.php/logout' => 'User logout',
+                            'POST /auth.php/change-password' => 'Change password',
+                            'POST /auth.php/forgot-password' => 'Request password reset',
+                            'POST /auth.php/reset-password' => 'Reset password with token',
+                            'GET /auth.php/verify' => 'Verify token',
+                            'GET /auth.php/profile' => 'Get user profile'
+                        ]
                     ]);
-                } else {
-                    http_response_code(401);
-                    echo json_encode(['error' => 'Invalid token']);
-                }
-
-            } else {
-                http_response_code(404);
-                echo json_encode(['error' => 'Endpoint not found']);
+                    break;
             }
             break;
-
+            
         default:
             http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Method not allowed'
+            ]);
             break;
     }
-
+    
 } catch (Exception $e) {
-    error_log("Auth API error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Internal server error']);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Internal server error',
+        'message' => $_ENV['APP_ENV'] === 'development' ? $e->getMessage() : 'Something went wrong'
+    ]);
+}
+
+/**
+ * Extract JWT token from Authorization header
+ */
+function extractToken() {
+    $headers = getallheaders();
+    
+    if (isset($headers['Authorization'])) {
+        $authHeader = $headers['Authorization'];
+        if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            return $matches[1];
+        }
+    }
+    
+    return null;
 }

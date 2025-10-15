@@ -1,167 +1,189 @@
 <?php
 /**
  * Settings API Endpoint
- * Handles global site settings
  */
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../classes/SettingsManager.php';
+require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../middleware/cors.php';
-require_once __DIR__ . '/../middleware/rate_limit.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
-$path_info = $_SERVER['PATH_INFO'] ?? '';
-$settings_manager = new SettingsManager();
-$auth = new Auth();
+$pathParts = explode('/', trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/'));
+$settingKey = (count($pathParts) >= 3) ? end($pathParts) : null;
+
+function authenticateUser() {
+    $headers = getallheaders();
+    $token = null;
+    if (isset($headers['Authorization']) && preg_match('/Bearer\s+(.*)$/i', $headers['Authorization'], $matches)) {
+        $token = $matches[1];
+    }
+    if (!$token) return ['success' => false, 'error' => 'Authentication required'];
+    
+    $auth = new Auth();
+    $result = $auth->verifyToken($token);
+    return $result['success'] ? ['success' => true, 'user' => $result['data']['user']] : $result;
+}
 
 try {
+    $database = new Database();
+    $db = $database->getConnection();
+    
     switch ($method) {
         case 'GET':
-            if (empty($path_info) || $path_info === '/') {
-                // Get all settings
-                $settings = $settings_manager->getAllSettings();
-                echo json_encode($settings);
-            } elseif (preg_match('/^\/category\/(.+)$/', $path_info, $matches)) {
-                // Get settings by category
-                $category = $matches[1];
-                $settings = $settings_manager->getSettingsByCategory($category);
-                echo json_encode($settings);
-            } elseif (preg_match('/^\/(.+)$/', $path_info, $matches)) {
-                // Get single setting
-                $key = $matches[1];
-                $value = $settings_manager->getSetting($key);
-                echo json_encode(['value' => $value]);
+            if ($settingKey) {
+                $stmt = $db->prepare("SELECT * FROM settings WHERE `key` = ?");
+                $stmt->execute([$settingKey]);
+                $setting = $stmt->fetch();
+                
+                if (!$setting) {
+                    http_response_code(404);
+                    echo json_encode(['success' => false, 'error' => 'Setting not found']);
+                    break;
+                }
+                
+                echo json_encode(['success' => true, 'data' => $setting]);
+            } else {
+                $category = $_GET['category'] ?? null;
+                
+                $whereClause = $category ? "WHERE category = ?" : "";
+                $params = $category ? [$category] : [];
+                
+                $query = "SELECT * FROM settings $whereClause ORDER BY category, sort_order, `key`";
+                $stmt = $db->prepare($query);
+                $stmt->execute($params);
+                $settings = $stmt->fetchAll();
+                
+                // Group by category for easier frontend consumption
+                $grouped = [];
+                foreach ($settings as $setting) {
+                    $grouped[$setting['category']][] = $setting;
+                }
+                
+                echo json_encode(['success' => true, 'data' => ['settings' => $settings, 'grouped' => $grouped]]);
             }
             break;
-
-        case 'POST':
-            // Create new setting (admin only)
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
             
-            $auth_result = $auth->verifyToken($token);
-            if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
+        case 'PUT':
+            $authResult = authenticateUser();
+            if (!$authResult['success']) {
                 http_response_code(401);
-                echo json_encode(['error' => 'Unauthorized']);
+                echo json_encode($authResult);
                 break;
             }
-
+            
+            if ($authResult['user']['role'] !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Permission denied']);
+                break;
+            }
+            
             $input = json_decode(file_get_contents('php://input'), true);
             
-            if (!$input || !isset($input['key'], $input['value'], $input['type'], $input['category'])) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Missing required fields']);
+            if ($settingKey) {
+                // Update single setting
+                if (!isset($input['value'])) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'error' => 'Value is required']);
+                    break;
+                }
+                
+                $stmt = $db->prepare("UPDATE settings SET value = ?, updated_at = NOW() WHERE `key` = ?");
+                $stmt->execute([$input['value'], $settingKey]);
+                
+                echo json_encode(['success' => true, 'message' => 'Setting updated successfully']);
+            } else {
+                // Bulk update settings
+                if (!isset($input['settings']) || !is_array($input['settings'])) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'error' => 'Settings array is required']);
+                    break;
+                }
+                
+                $updated = 0;
+                foreach ($input['settings'] as $key => $value) {
+                    $stmt = $db->prepare("UPDATE settings SET value = ?, updated_at = NOW() WHERE `key` = ?");
+                    $stmt->execute([$value, $key]);
+                    $updated += $stmt->rowCount();
+                }
+                
+                echo json_encode(['success' => true, 'message' => "$updated settings updated successfully"]);
+            }
+            break;
+            
+        case 'POST':
+            $authResult = authenticateUser();
+            if (!$authResult['success']) {
+                http_response_code(401);
+                echo json_encode($authResult);
                 break;
             }
-
-            $result = $settings_manager->createSetting(
+            
+            if ($authResult['user']['role'] !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Permission denied']);
+                break;
+            }
+            
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (!isset($input['key']) || !isset($input['value'])) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Key and value are required']);
+                break;
+            }
+            
+            $stmt = $db->prepare("
+                INSERT INTO settings (`key`, value, type, category, label, description, sort_order, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+            ");
+            
+            $stmt->execute([
                 $input['key'],
                 $input['value'],
-                $input['type'],
-                $input['category'],
-                $input['description'] ?? ''
-            );
+                $input['type'] ?? 'text',
+                $input['category'] ?? 'general',
+                $input['label'] ?? '',
+                $input['description'] ?? '',
+                $input['sort_order'] ?? 0
+            ]);
             
-            if ($result['success']) {
-                http_response_code(201);
-                echo json_encode(['message' => 'Setting created successfully', 'id' => $result['id']]);
-            } else {
-                http_response_code(500);
-                echo json_encode(['error' => $result['message']]);
-            }
+            echo json_encode(['success' => true, 'message' => 'Setting created successfully', 'data' => ['id' => $db->lastInsertId()]]);
             break;
-
-        case 'PUT':
-            // Update setting (admin only)
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
             
-            $auth_result = $auth->verifyToken($token);
-            if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
-                http_response_code(401);
-                echo json_encode(['error' => 'Unauthorized']);
-                break;
-            }
-
-            if (preg_match('/^\/bulk$/', $path_info)) {
-                // Bulk update settings
-                $input = json_decode(file_get_contents('php://input'), true);
-                
-                if (!$input || !isset($input['settings'])) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Missing settings data']);
-                    break;
-                }
-
-                $result = $settings_manager->bulkUpdateSettings($input['settings']);
-                
-                if ($result['success']) {
-                    echo json_encode(['message' => 'Settings updated successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            } elseif (preg_match('/^\/(.+)$/', $path_info, $matches)) {
-                // Update single setting
-                $key = $matches[1];
-                $input = json_decode(file_get_contents('php://input'), true);
-                
-                if (!$input || !isset($input['value'])) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Missing value']);
-                    break;
-                }
-
-                $result = $settings_manager->updateSetting(
-                    $key,
-                    $input['value'],
-                    $input['type'] ?? 'text'
-                );
-                
-                if ($result['success']) {
-                    echo json_encode(['message' => 'Setting updated successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            }
-            break;
-
         case 'DELETE':
-            // Delete setting (admin only)
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
-            
-            $auth_result = $auth->verifyToken($token);
-            if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
-                http_response_code(401);
-                echo json_encode(['error' => 'Unauthorized']);
+            if (!$settingKey) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Setting key is required']);
                 break;
             }
-
-            if (preg_match('/^\/(.+)$/', $path_info, $matches)) {
-                $key = $matches[1];
-                $result = $settings_manager->deleteSetting($key);
-                
-                if ($result['success']) {
-                    echo json_encode(['message' => 'Setting deleted successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
+            
+            $authResult = authenticateUser();
+            if (!$authResult['success']) {
+                http_response_code(401);
+                echo json_encode($authResult);
+                break;
             }
+            
+            if ($authResult['user']['role'] !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Permission denied']);
+                break;
+            }
+            
+            $stmt = $db->prepare("DELETE FROM settings WHERE `key` = ?");
+            $stmt->execute([$settingKey]);
+            
+            echo json_encode(['success' => true, 'message' => 'Setting deleted successfully']);
             break;
-
+            
         default:
             http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
+            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
             break;
     }
-
+    
 } catch (Exception $e) {
-    error_log("Settings API error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Internal server error']);
+    echo json_encode(['success' => false, 'error' => 'Internal server error', 'message' => $_ENV['APP_ENV'] === 'development' ? $e->getMessage() : 'Something went wrong']);
 }

@@ -1,165 +1,105 @@
 <?php
 /**
  * Carousel API Endpoint
- * Handles carousel slides management
  */
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../classes/CarouselManager.php';
+require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Auth.php';
-require_once __DIR__ . '/../middleware/cors.php';
-require_once __DIR__ . '/../middleware/rate_limit.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
-$path_info = $_SERVER['PATH_INFO'] ?? '';
-$carousel_manager = new CarouselManager();
-$auth = new Auth();
+$name = $_GET['name'] ?? 'hero';
+
+function authenticateUser() {
+    $headers = getallheaders();
+    $token = null;
+    if (isset($headers['Authorization']) && preg_match('/Bearer\s+(.*)$/i', $headers['Authorization'], $matches)) {
+        $token = $matches[1];
+    }
+    if (!$token) return ['success' => false, 'error' => 'Authentication required'];
+    
+    $auth = new Auth();
+    $result = $auth->verifyToken($token);
+    return $result['success'] ? ['success' => true, 'user' => $result['data']['user']] : $result;
+}
 
 try {
+    $database = new Database();
+    $db = $database->getConnection();
+    
     switch ($method) {
         case 'GET':
-            if (empty($path_info) || $path_info === '/') {
-                // Get all carousels (admin) or specific carousel (public)
-                $carousel_name = $_GET['name'] ?? null;
-                
-                if ($carousel_name) {
-                    $slides = $carousel_manager->getCarouselSlides($carousel_name);
-                    echo json_encode($slides);
-                } else {
-                    // Admin view - get all carousels
-                    $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-                    $token = str_replace('Bearer ', '', $token);
-                    
-                    $auth_result = $auth->verifyToken($token);
-                    if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
-                        http_response_code(401);
-                        echo json_encode(['error' => 'Unauthorized']);
-                        break;
-                    }
-
-                    $carousels = $carousel_manager->getAllCarousels();
-                    echo json_encode($carousels);
-                }
-            }
-            break;
-
-        case 'POST':
-            // Create new slide (admin only)
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
+            $stmt = $db->prepare("
+                SELECT * FROM carousels 
+                WHERE name = ? AND status = 'active' 
+                AND (start_date IS NULL OR start_date <= NOW()) 
+                AND (end_date IS NULL OR end_date >= NOW())
+                ORDER BY sort_order ASC
+            ");
+            $stmt->execute([$name]);
+            $slides = $stmt->fetchAll();
             
-            $auth_result = $auth->verifyToken($token);
-            if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
+            echo json_encode(['success' => true, 'data' => $slides]);
+            break;
+            
+        case 'POST':
+            $authResult = authenticateUser();
+            if (!$authResult['success']) {
                 http_response_code(401);
-                echo json_encode(['error' => 'Unauthorized']);
+                echo json_encode($authResult);
                 break;
             }
-
+            
+            if (!in_array($authResult['user']['role'], ['admin', 'editor'])) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Permission denied']);
+                break;
+            }
+            
             $input = json_decode(file_get_contents('php://input'), true);
             
-            if (!$input || !isset($input['carouselName'])) {
+            if (!isset($input['name']) || !isset($input['image_url'])) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Missing required fields']);
+                echo json_encode(['success' => false, 'error' => 'Name and image URL are required']);
                 break;
             }
-
-            if ($path_info === '/reorder') {
-                // Reorder slides
-                if (!isset($input['slideOrders'])) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Missing slide orders']);
-                    break;
-                }
-
-                $result = $carousel_manager->reorderSlides($input['carouselName'], $input['slideOrders']);
-                
-                if ($result['success']) {
-                    echo json_encode(['message' => 'Slides reordered successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            } else {
-                // Create new slide
-                $result = $carousel_manager->createSlide($input);
-                
-                if ($result['success']) {
-                    http_response_code(201);
-                    echo json_encode(['message' => 'Slide created successfully', 'id' => $result['id']]);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            }
-            break;
-
-        case 'PUT':
-            // Update slide (admin only)
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
             
-            $auth_result = $auth->verifyToken($token);
-            if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
-                http_response_code(401);
-                echo json_encode(['error' => 'Unauthorized']);
-                break;
-            }
-
-            if (preg_match('/^\/(\d+)$/', $path_info, $matches)) {
-                $slide_id = $matches[1];
-                $input = json_decode(file_get_contents('php://input'), true);
-                
-                if (!$input) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Invalid JSON data']);
-                    break;
-                }
-
-                $result = $carousel_manager->updateSlide($slide_id, $input);
-                
-                if ($result['success']) {
-                    echo json_encode(['message' => 'Slide updated successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            }
-            break;
-
-        case 'DELETE':
-            // Delete slide (admin only)
-            $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            $token = str_replace('Bearer ', '', $token);
+            $stmt = $db->prepare("
+                INSERT INTO carousels (
+                    name, title, subtitle, description, image_url, cta_text, cta_url,
+                    background_color, text_color, overlay_opacity, status, sort_order,
+                    start_date, end_date, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ");
             
-            $auth_result = $auth->verifyToken($token);
-            if (!$auth_result['success'] || $auth_result['role'] !== 'admin') {
-                http_response_code(401);
-                echo json_encode(['error' => 'Unauthorized']);
-                break;
-            }
-
-            if (preg_match('/^\/(\d+)$/', $path_info, $matches)) {
-                $slide_id = $matches[1];
-                $result = $carousel_manager->deleteSlide($slide_id);
-                
-                if ($result['success']) {
-                    echo json_encode(['message' => 'Slide deleted successfully']);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => $result['message']]);
-                }
-            }
+            $stmt->execute([
+                $input['name'],
+                $input['title'] ?? '',
+                $input['subtitle'] ?? '',
+                $input['description'] ?? '',
+                $input['image_url'],
+                $input['cta_text'] ?? '',
+                $input['cta_url'] ?? '',
+                $input['background_color'] ?? null,
+                $input['text_color'] ?? '#FFFFFF',
+                $input['overlay_opacity'] ?? 0.5,
+                $input['status'] ?? 'active',
+                $input['sort_order'] ?? 0,
+                $input['start_date'] ?? null,
+                $input['end_date'] ?? null
+            ]);
+            
+            echo json_encode(['success' => true, 'message' => 'Carousel slide created successfully', 'data' => ['id' => $db->lastInsertId()]]);
             break;
-
+            
         default:
             http_response_code(405);
-            echo json_encode(['error' => 'Method not allowed']);
+            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
             break;
     }
-
+    
 } catch (Exception $e) {
-    error_log("Carousel API error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Internal server error']);
+    echo json_encode(['success' => false, 'error' => 'Internal server error', 'message' => $_ENV['APP_ENV'] === 'development' ? $e->getMessage() : 'Something went wrong']);
 }
