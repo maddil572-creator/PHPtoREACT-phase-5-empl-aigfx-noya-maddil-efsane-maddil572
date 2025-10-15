@@ -40,67 +40,80 @@ try {
         // Route to appropriate API handler
         switch (true) {
             // Authentication endpoints
-            case $apiPath === '/auth.php' || strpos($apiPath, '/auth.php/') === 0:
+            case $apiPath === '/auth.php' || strpos($apiPath, '/auth.php/') === 0 || 
+                 $apiPath === '/auth' || strpos($apiPath, '/auth/') === 0:
                 require_once __DIR__ . '/api/auth.php';
                 break;
                 
             // Blog endpoints
-            case $apiPath === '/blogs.php' || strpos($apiPath, '/blogs.php/') === 0:
+            case $apiPath === '/blogs.php' || strpos($apiPath, '/blogs.php/') === 0 || 
+                 $apiPath === '/blogs' || strpos($apiPath, '/blogs/') === 0:
                 require_once __DIR__ . '/api/blogs.php';
                 break;
                 
             // Portfolio endpoints
-            case $apiPath === '/portfolio.php' || strpos($apiPath, '/portfolio.php/') === 0:
+            case $apiPath === '/portfolio.php' || strpos($apiPath, '/portfolio.php/') === 0 || 
+                 $apiPath === '/portfolio' || strpos($apiPath, '/portfolio/') === 0:
                 require_once __DIR__ . '/api/portfolio.php';
                 break;
                 
             // Services endpoints
-            case $apiPath === '/services.php' || strpos($apiPath, '/services.php/') === 0:
+            case $apiPath === '/services.php' || strpos($apiPath, '/services.php/') === 0 || 
+                 $apiPath === '/services' || strpos($apiPath, '/services/') === 0:
                 require_once __DIR__ . '/api/services.php';
                 break;
                 
             // Testimonials endpoints
-            case $apiPath === '/testimonials.php' || strpos($apiPath, '/testimonials.php/') === 0:
+            case $apiPath === '/testimonials.php' || strpos($apiPath, '/testimonials.php/') === 0 || 
+                 $apiPath === '/testimonials' || strpos($apiPath, '/testimonials/') === 0:
                 require_once __DIR__ . '/api/testimonials.php';
                 break;
                 
             // Settings endpoints
-            case $apiPath === '/settings.php' || strpos($apiPath, '/settings.php/') === 0:
+            case $apiPath === '/settings.php' || strpos($apiPath, '/settings.php/') === 0 || 
+                 $apiPath === '/settings' || strpos($apiPath, '/settings/') === 0:
                 require_once __DIR__ . '/api/settings.php';
                 break;
                 
             // Contact endpoints
-            case $apiPath === '/contact.php' || strpos($apiPath, '/contact.php/') === 0:
+            case $apiPath === '/contact.php' || strpos($apiPath, '/contact.php/') === 0 || 
+                 $apiPath === '/contact' || strpos($apiPath, '/contact/') === 0:
                 require_once __DIR__ . '/api/contact.php';
                 break;
                 
             // Newsletter endpoints
-            case $apiPath === '/newsletter.php' || strpos($apiPath, '/newsletter.php/') === 0:
+            case $apiPath === '/newsletter.php' || strpos($apiPath, '/newsletter.php/') === 0 || 
+                 $apiPath === '/newsletter' || strpos($apiPath, '/newsletter/') === 0:
                 require_once __DIR__ . '/api/newsletter.php';
                 break;
                 
             // Upload endpoints
-            case $apiPath === '/uploads.php' || strpos($apiPath, '/uploads.php/') === 0:
+            case $apiPath === '/uploads.php' || strpos($apiPath, '/uploads.php/') === 0 || 
+                 $apiPath === '/uploads' || strpos($apiPath, '/uploads/') === 0:
                 require_once __DIR__ . '/api/uploads.php';
                 break;
                 
             // Carousel endpoints
-            case $apiPath === '/carousel.php' || strpos($apiPath, '/carousel.php/') === 0:
+            case $apiPath === '/carousel.php' || strpos($apiPath, '/carousel.php/') === 0 || 
+                 $apiPath === '/carousel' || strpos($apiPath, '/carousel/') === 0:
                 require_once __DIR__ . '/api/carousel.php';
                 break;
                 
             // Pages endpoints
-            case $apiPath === '/pages.php' || strpos($apiPath, '/pages.php/') === 0:
+            case $apiPath === '/pages.php' || strpos($apiPath, '/pages.php/') === 0 || 
+                 $apiPath === '/pages' || strpos($apiPath, '/pages/') === 0:
                 require_once __DIR__ . '/api/pages.php';
                 break;
                 
             // Translations endpoints
-            case $apiPath === '/translations.php' || strpos($apiPath, '/translations.php/') === 0:
+            case $apiPath === '/translations.php' || strpos($apiPath, '/translations.php/') === 0 || 
+                 $apiPath === '/translations' || strpos($apiPath, '/translations/') === 0:
                 require_once __DIR__ . '/api/translations.php';
                 break;
                 
             // Test endpoint
-            case $apiPath === '/test.php' || strpos($apiPath, '/test.php/') === 0:
+            case $apiPath === '/test.php' || strpos($apiPath, '/test.php/') === 0 || 
+                 $apiPath === '/test' || strpos($apiPath, '/test/') === 0:
                 require_once __DIR__ . '/api/test.php';
                 break;
                 
@@ -123,6 +136,21 @@ try {
                         
                     case $adminPath === 'translations.php' || strpos($adminPath, 'translations.php/') === 0:
                         require_once __DIR__ . '/api/admin/translations.php';
+                        break;
+                        
+                    case $adminPath === 'notifications.php' || strpos($adminPath, 'notifications.php/') === 0 || 
+                         $adminPath === 'notifications' || strpos($adminPath, 'notifications/') === 0:
+                        require_once __DIR__ . '/api/admin/notifications.php';
+                        break;
+                        
+                    case $adminPath === 'audit.php' || strpos($adminPath, 'audit.php/') === 0 || 
+                         $adminPath === 'audit' || strpos($adminPath, 'audit/') === 0:
+                        require_once __DIR__ . '/api/admin/audit.php';
+                        break;
+                        
+                    case $adminPath === 'blogs.php' || strpos($adminPath, 'blogs.php/') === 0 || 
+                         $adminPath === 'blogs' || strpos($adminPath, 'blogs/') === 0:
+                        require_once __DIR__ . '/api/admin/blogs.php';
                         break;
                         
                     default:
