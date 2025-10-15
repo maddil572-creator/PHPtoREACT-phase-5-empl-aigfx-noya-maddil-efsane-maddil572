@@ -132,14 +132,15 @@ export function HomepageManager() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="hero">Hero Section</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+          <TabsTrigger value="hero">Hero</TabsTrigger>
           <TabsTrigger value="why_choose">Why Choose</TabsTrigger>
           <TabsTrigger value="why_choose_reasons">Reasons</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
-          <TabsTrigger value="social">Social Links</TabsTrigger>
-          <TabsTrigger value="navigation">Navigation</TabsTrigger>
-          <TabsTrigger value="global">Global Content</TabsTrigger>
+          <TabsTrigger value="social">Social</TabsTrigger>
+          <TabsTrigger value="navigation">Nav</TabsTrigger>
+          <TabsTrigger value="links">Links</TabsTrigger>
+          <TabsTrigger value="global">Global</TabsTrigger>
         </TabsList>
 
         {/* Hero Section */}
@@ -539,6 +540,161 @@ export function HomepageManager() {
                   label="CTA Button Link"
                   placeholder="/contact"
                 />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Links Management */}
+        <TabsContent value="links" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Site Links Management</CardTitle>
+              <CardDescription>
+                Manage all internal navigation links and external URLs
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h4 className="font-medium mb-4">Internal Navigation Links</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ContentField
+                    section="links"
+                    contentKey="home_url"
+                    label="Home URL"
+                    placeholder="/"
+                  />
+                  <ContentField
+                    section="links"
+                    contentKey="about_url"
+                    label="About URL"
+                    placeholder="/about"
+                  />
+                  <ContentField
+                    section="links"
+                    contentKey="services_url"
+                    label="Services URL"
+                    placeholder="/services"
+                  />
+                  <ContentField
+                    section="links"
+                    contentKey="portfolio_url"
+                    label="Portfolio URL"
+                    placeholder="/portfolio"
+                  />
+                  <ContentField
+                    section="links"
+                    contentKey="blog_url"
+                    label="Blog URL"
+                    placeholder="/blog"
+                  />
+                  <ContentField
+                    section="links"
+                    contentKey="testimonials_url"
+                    label="Testimonials URL"
+                    placeholder="/testimonials"
+                  />
+                  <ContentField
+                    section="links"
+                    contentKey="faq_url"
+                    label="FAQ URL"
+                    placeholder="/faq"
+                  />
+                  <ContentField
+                    section="links"
+                    contentKey="contact_url"
+                    label="Contact URL"
+                    placeholder="/contact"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-4">User Account Links</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <ContentField
+                    section="links"
+                    contentKey="auth_url"
+                    label="Auth Page URL"
+                    placeholder="/auth"
+                  />
+                  <ContentField
+                    section="links"
+                    contentKey="dashboard_url"
+                    label="Admin Dashboard URL"
+                    placeholder="/dashboard"
+                  />
+                  <ContentField
+                    section="links"
+                    contentKey="user_dashboard_url"
+                    label="User Dashboard URL"
+                    placeholder="/user/dashboard"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-4">External Links</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ContentField
+                    section="external_links"
+                    contentKey="whatsapp_url"
+                    label="WhatsApp URL"
+                    type="url"
+                    placeholder="https://wa.me/1234567890"
+                  />
+                  <ContentField
+                    section="external_links"
+                    contentKey="fiverr_profile_url"
+                    label="Fiverr Profile URL"
+                    type="url"
+                    placeholder="https://fiverr.com/adilgfx"
+                  />
+                  <ContentField
+                    section="external_links"
+                    contentKey="upwork_profile_url"
+                    label="Upwork Profile URL"
+                    type="url"
+                    placeholder="https://upwork.com/freelancers/adilgfx"
+                  />
+                  <ContentField
+                    section="external_links"
+                    contentKey="calendly_url"
+                    label="Calendly URL"
+                    type="url"
+                    placeholder="https://calendly.com/adilgfx"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-4">Site Settings</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <ContentField
+                    section="site_settings"
+                    contentKey="favicon_url"
+                    label="Favicon URL"
+                    type="url"
+                    placeholder="/favicon.ico"
+                    description="Path to your site's favicon"
+                  />
+                  <ContentField
+                    section="site_settings"
+                    contentKey="site_url"
+                    label="Site URL"
+                    type="url"
+                    placeholder="https://adilgfx.com"
+                    description="Your main website URL"
+                  />
+                  <ContentField
+                    section="site_settings"
+                    contentKey="admin_email"
+                    label="Admin Email"
+                    type="email"
+                    placeholder="admin@adilgfx.com"
+                    description="Main admin email address"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

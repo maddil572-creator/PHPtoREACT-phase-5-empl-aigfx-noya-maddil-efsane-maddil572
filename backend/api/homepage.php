@@ -206,6 +206,31 @@ function initializeDefaultContent($db) {
         ['global', 'popup_offer_description', 'Join thousands of satisfied clients and start your design journey with us. Enter your email to claim your exclusive welcome discount.', 'textarea'],
         ['global', 'about_intro_text', 'Since then, I\'ve helped over 500 clients across various industries, from YouTubers who\'ve gained millions of subscribers to startups that secured major funding rounds.', 'textarea'],
         ['global', 'why_choose_closing_text', 'Join hundreds of satisfied clients who\'ve seen real results. Your success is my success.', 'textarea'],
+        
+        // Site Links
+        ['links', 'home_url', '/', 'text'],
+        ['links', 'about_url', '/about', 'text'],
+        ['links', 'services_url', '/services', 'text'],
+        ['links', 'portfolio_url', '/portfolio', 'text'],
+        ['links', 'blog_url', '/blog', 'text'],
+        ['links', 'testimonials_url', '/testimonials', 'text'],
+        ['links', 'faq_url', '/faq', 'text'],
+        ['links', 'contact_url', '/contact', 'text'],
+        ['links', 'auth_url', '/auth', 'text'],
+        ['links', 'dashboard_url', '/dashboard', 'text'],
+        ['links', 'user_dashboard_url', '/user/dashboard', 'text'],
+        ['links', 'user_login_url', '/user/login', 'text'],
+        
+        // External Links
+        ['external_links', 'whatsapp_url', 'https://wa.me/1234567890', 'url'],
+        ['external_links', 'fiverr_profile_url', 'https://fiverr.com/adilgfx', 'url'],
+        ['external_links', 'upwork_profile_url', 'https://upwork.com/freelancers/adilgfx', 'url'],
+        ['external_links', 'calendly_url', 'https://calendly.com/adilgfx', 'url'],
+        
+        // Site Settings
+        ['site_settings', 'favicon_url', '/favicon.ico', 'url'],
+        ['site_settings', 'site_url', 'https://adilgfx.com', 'url'],
+        ['site_settings', 'admin_email', 'admin@adilgfx.com', 'email'],
     ];
     
     $stmt = $db->prepare("

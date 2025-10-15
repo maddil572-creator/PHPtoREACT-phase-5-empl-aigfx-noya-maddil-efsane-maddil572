@@ -5,36 +5,38 @@ import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useHomepageContent } from "@/hooks/useHomepageContent"
-
-const footerLinks = {
-  services: [
-    { name: "Logo Design", href: "/services#logo" },
-    { name: "YouTube Thumbnails", href: "/services#thumbnails" },
-    { name: "Video Editing", href: "/services#video" },
-    { name: "YouTube Setup & Branding", href: "/services#youtube-branding" }
-  ],
-  explore: [
-    { name: "Portfolio", href: "/portfolio" },
-    { name: "Blog", href: "/blog" },
-    { name: "Testimonials", href: "/testimonials" },
-    { name: "Case Studies", href: "/testimonials#case-studies" }
-  ],
-  support: [
-    { name: "FAQ", href: "/faq" },
-    { name: "Contact", href: "/contact" },
-    { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms & Conditions", href: "/terms" }
-  ],
-  business: [
-    { name: "Hire Me (Direct)", href: "/contact" },
-    { name: "Fiverr Profile", href: "https://fiverr.com/adilgfx" },
-    { name: "Media Kit (PDF)", href: "/media-kit.pdf" },
-    { name: "Free Templates", href: "#lead-magnet" }
-  ]
-}
+import { useSiteLinks } from "@/hooks/useSiteLinks"
 
 export function Footer() {
   const { getContent, loading } = useHomepageContent()
+  const { links, externalLinks } = useSiteLinks()
+
+  const footerLinks = {
+    services: [
+      { name: "Logo Design", href: `${links.services}#logo` },
+      { name: "YouTube Thumbnails", href: `${links.services}#thumbnails` },
+      { name: "Video Editing", href: `${links.services}#video` },
+      { name: "YouTube Setup & Branding", href: `${links.services}#youtube-branding` }
+    ],
+    explore: [
+      { name: "Portfolio", href: links.portfolio },
+      { name: "Blog", href: links.blog },
+      { name: "Testimonials", href: links.testimonials },
+      { name: "Case Studies", href: `${links.testimonials}#case-studies` }
+    ],
+    support: [
+      { name: "FAQ", href: links.faq },
+      { name: "Contact", href: links.contact },
+      { name: "Privacy Policy", href: "/privacy" },
+      { name: "Terms & Conditions", href: "/terms" }
+    ],
+    business: [
+      { name: "Hire Me (Direct)", href: links.contact },
+      { name: "Fiverr Profile", href: externalLinks.fiverr },
+      { name: "Media Kit (PDF)", href: "/media-kit.pdf" },
+      { name: "Free Templates", href: "#lead-magnet" }
+    ]
+  }
 
   const socialLinks = [
     { 
@@ -89,7 +91,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand column */}
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center space-x-2 mb-4">
+            <Link to={links.home} className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-youtube rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">A</span>
               </div>

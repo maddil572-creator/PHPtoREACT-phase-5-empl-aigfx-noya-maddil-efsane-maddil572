@@ -8,9 +8,11 @@ import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePricingServices } from "@/hooks/usePricingServices"
+import { useSiteLinks } from "@/hooks/useSiteLinks"
 
 export function PricingEstimator() {
   const { services, loading, error } = usePricingServices()
+  const { links, externalLinks } = useSiteLinks()
   const [selectedService, setSelectedService] = useState("0")
   const [selectedVariation, setSelectedVariation] = useState("0")
   const [urgency, setUrgency] = useState([1])
@@ -44,7 +46,7 @@ export function PricingEstimator() {
           <h3 className="text-xl font-semibold text-foreground">Pricing Calculator</h3>
         </div>
         <p className="text-muted-foreground mb-4">Calculator temporarily unavailable. Please contact us for a custom quote.</p>
-        <Button onClick={() => window.location.href = '/contact'}>
+        <Button onClick={() => window.location.href = links.contact}>
           Get Custom Quote
         </Button>
       </Card>
@@ -69,7 +71,7 @@ export function PricingEstimator() {
 
   const handleGetQuote = () => {
     const message = `Hi Adil! I used your price estimator. My project (${currentService.name} - ${currentVariation.name}) estimate is $${estimatedPrice}. Can we discuss?`
-    const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(message)}`
+    const whatsappUrl = `${externalLinks.whatsapp}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
   }
 

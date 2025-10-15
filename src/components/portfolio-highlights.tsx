@@ -3,9 +3,11 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePublicPortfolio } from "@/hooks/usePublicPortfolio"
+import { useSiteLinks } from "@/hooks/useSiteLinks"
 
 export function PortfolioHighlights() {
   const { portfolio, loading, error } = usePublicPortfolio(true, 4)
+  const { links } = useSiteLinks()
   return (
     <section className="py-20 bg-surface">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -93,7 +95,7 @@ export function PortfolioHighlights() {
 
         {/* CTA */}
         <div className="text-center">
-          <Link to="/portfolio">
+          <Link to={links.portfolio}>
             <Button 
               size="lg" 
               variant="outline"

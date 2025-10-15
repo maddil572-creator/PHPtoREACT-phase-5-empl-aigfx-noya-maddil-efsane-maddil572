@@ -7,18 +7,8 @@ import { LanguageSwitcher } from "@/components/language-switcher"
 import { useGlobalSettings } from "@/components/global-settings-provider"
 import { useAuth } from "@/contexts/AuthContext"
 import { useHomepageContent } from "@/hooks/useHomepageContent"
+import { useSiteLinks } from "@/hooks/useSiteLinks"
 import { cn } from "@/lib/utils"
-
-const navigation = [
-  { name: "Home", href: "/", icon: Play },
-  { name: "Portfolio", href: "/portfolio", icon: Palette },
-  { name: "Services", href: "/services", icon: Briefcase },
-  { name: "About", href: "/about", icon: User },
-  { name: "Testimonials", href: "/testimonials", icon: Star },
-  { name: "Blog", href: "/blog", icon: FileText },
-  { name: "FAQ", href: "/faq", icon: HelpCircle },
-  { name: "Contact", href: "/contact", icon: Phone },
-]
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -27,6 +17,18 @@ export function Navigation() {
   const { settings } = useGlobalSettings()
   const { isAuthenticated, user, logout, hasAnyRole } = useAuth()
   const { getContent, loading } = useHomepageContent()
+  const { links } = useSiteLinks()
+
+  const navigation = [
+    { name: "Home", href: links.home, icon: Play },
+    { name: "Portfolio", href: links.portfolio, icon: Palette },
+    { name: "Services", href: links.services, icon: Briefcase },
+    { name: "About", href: links.about, icon: User },
+    { name: "Testimonials", href: links.testimonials, icon: Star },
+    { name: "Blog", href: links.blog, icon: FileText },
+    { name: "FAQ", href: links.faq, icon: HelpCircle },
+    { name: "Contact", href: links.contact, icon: Phone },
+  ]
 
   const handleLogout = () => {
     logout()
@@ -39,7 +41,7 @@ export function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link 
-            to="/" 
+            to={links.home} 
             className="flex items-center space-x-2 font-bold text-xl text-foreground hover:text-youtube-red transition-smooth"
           >
             <div className="w-8 h-8 bg-gradient-youtube rounded-lg flex items-center justify-center">
@@ -77,14 +79,14 @@ export function Navigation() {
             {isAuthenticated ? (
               <>
                 {hasAnyRole(['admin', 'editor', 'viewer']) && (
-                  <Link to="/dashboard">
+                  <Link to={links.dashboard}>
                     <Button variant="outline" size="sm">
                       <LayoutDashboard className="h-4 w-4 mr-2" />
                       Dashboard
                     </Button>
                   </Link>
                 )}
-                <Link to="/user/dashboard">
+                <Link to={links.userDashboard}>
                   <Button variant="outline" size="sm">
                     <User className="h-4 w-4 mr-2" />
                     {user?.name}
@@ -97,7 +99,7 @@ export function Navigation() {
               </>
             ) : (
               <>
-                <Link to="/user/login">
+                <Link to={links.userLogin}>
                   <Button variant="outline" size="sm">
                     <LogIn className="h-4 w-4 mr-2" />
                     Login
