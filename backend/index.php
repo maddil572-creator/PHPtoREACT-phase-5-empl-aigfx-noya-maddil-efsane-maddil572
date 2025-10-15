@@ -99,6 +99,11 @@ try {
                 require_once __DIR__ . '/api/translations.php';
                 break;
                 
+            // Test endpoint
+            case $apiPath === '/test.php' || strpos($apiPath, '/test.php/') === 0:
+                require_once __DIR__ . '/api/test.php';
+                break;
+                
             // Admin endpoints
             case strpos($apiPath, '/admin/') === 0:
                 $adminPath = substr($apiPath, 7); // Remove '/admin/' prefix
