@@ -21,8 +21,8 @@ import notificationsData from '@/data/notifications.json';
 import userDataFile from '@/data/userData.json';
 
 // API configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA !== 'false'; // Default to true
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/backend';
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true'; // Default to false for production
 
 /**
  * Fetch global site settings
@@ -61,7 +61,8 @@ export async function fetchGlobalSettings(): Promise<Record<string, any>> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/settings.php`);
     if (!response.ok) throw new Error('Failed to fetch settings');
-    return await response.json();
+    const result = await response.json();
+    return result.data || result;
   } catch (error) {
     return handleApiError(error, {});
   }
@@ -98,7 +99,8 @@ export async function fetchPageBySlug(slug: string): Promise<any | null> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/pages.php/${slug}`);
     if (!response.ok) throw new Error('Page not found');
-    return await response.json();
+    const result = await response.json();
+    return result.data || result;
   } catch (error) {
     return handleApiError(error, null);
   }

@@ -4,6 +4,17 @@
  * Secure database connection with environment variables
  */
 
+// Load environment variables if not already loaded
+if (empty($_ENV['DB_HOST']) && file_exists(__DIR__ . '/../.env')) {
+    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') === false) continue;
+        list($name, $value) = explode('=', $line, 2);
+        $_ENV[trim($name)] = trim($value);
+    }
+}
+
 class Database {
     private $host;
     private $db_name;

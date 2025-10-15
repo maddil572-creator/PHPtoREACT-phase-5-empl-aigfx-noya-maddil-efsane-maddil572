@@ -3,7 +3,7 @@
  * Handles all admin-specific API calls with authentication
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/backend';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/backend';
 
 interface ApiResponse<T = any> {
   success: boolean;
