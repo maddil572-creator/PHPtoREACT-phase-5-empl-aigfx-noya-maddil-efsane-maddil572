@@ -132,9 +132,10 @@ export function HomepageManager() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="hero">Hero Section</TabsTrigger>
           <TabsTrigger value="why_choose">Why Choose</TabsTrigger>
+          <TabsTrigger value="why_choose_reasons">Reasons</TabsTrigger>
           <TabsTrigger value="footer">Footer</TabsTrigger>
           <TabsTrigger value="social">Social Links</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
@@ -337,6 +338,66 @@ export function HomepageManager() {
                         label="Description"
                         placeholder={num === 1 ? "Worldwide" : num === 2 ? "For YouTube clients" : num === 3 ? "Client success stories" : "For standard projects"}
                       />
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Why Choose Reasons Section */}
+        <TabsContent value="why_choose_reasons" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Why Choose Reasons</CardTitle>
+              <CardDescription>
+                Manage the 6 reason cards displayed in the Why Choose section
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((num) => (
+                  <Card key={num} className="p-4">
+                    <h4 className="font-medium mb-4">Reason {num}</h4>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <ContentField
+                          section="why_choose_reasons"
+                          contentKey={`reason_${num}_title`}
+                          label="Title"
+                          placeholder={num === 1 ? "Lightning Fast Delivery" : num === 2 ? "Proven Results" : "Feature Title"}
+                        />
+                        <ContentField
+                          section="why_choose_reasons"
+                          contentKey={`reason_${num}_stat`}
+                          label="Statistic"
+                          placeholder={num === 1 ? "24-48h" : num === 2 ? "500+ Projects" : "Stat"}
+                        />
+                      </div>
+                      <ContentField
+                        section="why_choose_reasons"
+                        contentKey={`reason_${num}_description`}
+                        label="Description"
+                        type="textarea"
+                        placeholder="Describe this feature or benefit..."
+                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <ContentField
+                          section="why_choose_reasons"
+                          contentKey={`reason_${num}_icon`}
+                          label="Icon Name"
+                          placeholder="Zap, Trophy, Star, Users, Heart, Award"
+                          description="Available icons: Zap, Trophy, Star, Users, Heart, Award, Clock"
+                        />
+                        <ContentField
+                          section="why_choose_reasons"
+                          contentKey={`reason_${num}_color`}
+                          label="Color Class"
+                          placeholder="text-yellow-500"
+                          description="Tailwind color classes like text-blue-500, text-red-500"
+                        />
+                      </div>
                     </div>
                   </Card>
                 ))}

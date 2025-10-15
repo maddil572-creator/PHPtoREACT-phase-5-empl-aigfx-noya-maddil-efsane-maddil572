@@ -144,6 +144,43 @@ function initializeDefaultContent($db) {
         ['navigation', 'logo_text', 'Adil GFX', 'text'],
         ['navigation', 'cta_button_text', 'Hire Me Now', 'text'],
         ['navigation', 'cta_button_link', '/contact', 'text'],
+        
+        // Why Choose Reasons
+        ['why_choose_reasons', 'reason_1_title', 'Lightning Fast Delivery', 'text'],
+        ['why_choose_reasons', 'reason_1_description', 'Most projects delivered within 24-48 hours without compromising quality', 'textarea'],
+        ['why_choose_reasons', 'reason_1_stat', '24-48h', 'text'],
+        ['why_choose_reasons', 'reason_1_icon', 'Zap', 'text'],
+        ['why_choose_reasons', 'reason_1_color', 'text-yellow-500', 'text'],
+        
+        ['why_choose_reasons', 'reason_2_title', 'Proven Results', 'text'],
+        ['why_choose_reasons', 'reason_2_description', 'Designs that have generated millions in revenue and boosted client success', 'textarea'],
+        ['why_choose_reasons', 'reason_2_stat', '500+ Projects', 'text'],
+        ['why_choose_reasons', 'reason_2_icon', 'Trophy', 'text'],
+        ['why_choose_reasons', 'reason_2_color', 'text-youtube-red', 'text'],
+        
+        ['why_choose_reasons', 'reason_3_title', '5-Star Rating', 'text'],
+        ['why_choose_reasons', 'reason_3_description', 'Consistently rated 5 stars across all platforms - Fiverr, Upwork, and direct clients', 'textarea'],
+        ['why_choose_reasons', 'reason_3_stat', '5.0/5.0', 'text'],
+        ['why_choose_reasons', 'reason_3_icon', 'Star', 'text'],
+        ['why_choose_reasons', 'reason_3_color', 'text-yellow-500', 'text'],
+        
+        ['why_choose_reasons', 'reason_4_title', 'Global Experience', 'text'],
+        ['why_choose_reasons', 'reason_4_description', 'Worked with clients from 50+ countries, understanding diverse market needs', 'textarea'],
+        ['why_choose_reasons', 'reason_4_stat', '50+ Countries', 'text'],
+        ['why_choose_reasons', 'reason_4_icon', 'Users', 'text'],
+        ['why_choose_reasons', 'reason_4_color', 'text-blue-500', 'text'],
+        
+        ['why_choose_reasons', 'reason_5_title', 'Unlimited Revisions', 'text'],
+        ['why_choose_reasons', 'reason_5_description', 'Your satisfaction is guaranteed - we\'ll revise until you\'re 100% happy', 'textarea'],
+        ['why_choose_reasons', 'reason_5_stat', '∞ Revisions', 'text'],
+        ['why_choose_reasons', 'reason_5_icon', 'Heart', 'text'],
+        ['why_choose_reasons', 'reason_5_color', 'text-pink-500', 'text'],
+        
+        ['why_choose_reasons', 'reason_6_title', 'Industry Expertise', 'text'],
+        ['why_choose_reasons', 'reason_6_description', 'Specialized knowledge in YouTube optimization, branding, and conversion design', 'textarea'],
+        ['why_choose_reasons', 'reason_6_stat', '5+ Years', 'text'],
+        ['why_choose_reasons', 'reason_6_icon', 'Award', 'text'],
+        ['why_choose_reasons', 'reason_6_color', 'text-purple-500', 'text'],
     ];
     
     $stmt = $db->prepare("

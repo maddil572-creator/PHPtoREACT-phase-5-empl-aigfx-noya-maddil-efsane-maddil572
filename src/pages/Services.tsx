@@ -2,9 +2,76 @@ import { CheckCircle, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PricingCalculator } from "@/components/pricing-calculator"
 import { SEOHead } from "@/components/seo-head"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useAnalytics } from "@/utils/analytics"
+import { usePublicServices } from "@/hooks/usePublicServices"
 
-const services = [
+export default function Services() {
+  const { services, loading, error } = usePublicServices()
+  const { trackEvent } = useAnalytics()
+
+  const handlePackageClick = (serviceName: string, packageName: string) => {
+    trackEvent('service_package_click', {
+      service: serviceName,
+      package: packageName
+    })
+  }
+
+  if (loading) {
+    return (
+      <>
+        <SEOHead 
+          title="Services & Pricing - Professional Design Services | Adil GFX"
+          description="Professional logo design, YouTube thumbnails, video editing, and branding services. Transparent pricing, fast delivery, and unlimited revisions."
+          url="https://adilgfx.com/services"
+        />
+        <main className="pt-24 pb-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <Skeleton className="h-12 w-96 mx-auto mb-4" />
+              <Skeleton className="h-6 w-[600px] mx-auto" />
+            </div>
+            <div className="space-y-20">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-8">
+                  <Skeleton className="h-8 w-64 mx-auto" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[1, 2, 3].map((j) => (
+                      <Skeleton key={j} className="h-96 w-full" />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+      </>
+    )
+  }
+
+  if (error) {
+    return (
+      <>
+        <SEOHead 
+          title="Services & Pricing - Professional Design Services | Adil GFX"
+          description="Professional logo design, YouTube thumbnails, video editing, and branding services. Transparent pricing, fast delivery, and unlimited revisions."
+          url="https://adilgfx.com/services"
+        />
+        <main className="pt-24 pb-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center py-16">
+              <h1 className="text-4xl font-bold text-foreground mb-4">Services Temporarily Unavailable</h1>
+              <p className="text-muted-foreground mb-8">We're experiencing technical difficulties. Please try again later.</p>
+              <Button onClick={() => window.location.reload()}>Retry</Button>
+            </div>
+          </div>
+        </main>
+      </>
+    )
+  }
+
+  // Fallback services if database is empty
+  const fallbackServices = [
   {
     title: "Logo Design",
     subtitle: "Professional Brand Identity",

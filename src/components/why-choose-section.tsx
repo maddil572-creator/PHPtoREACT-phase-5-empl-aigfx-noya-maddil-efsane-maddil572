@@ -1,53 +1,74 @@
 import { Clock, Zap, Trophy, Heart, Star, Users, Award, CheckCircle } from "lucide-react"
 import { useHomepageContent } from "@/hooks/useHomepageContent"
 
-const reasons = [
-  {
-    icon: Zap,
-    title: "Lightning Fast Delivery",
-    description: "Most projects delivered within 24-48 hours without compromising quality",
-    stat: "24-48h",
-    color: "text-yellow-500"
-  },
-  {
-    icon: Trophy,
-    title: "Proven Results",
-    description: "Designs that have generated millions in revenue and boosted client success",
-    stat: "500+ Projects",
-    color: "text-youtube-red"
-  },
-  {
-    icon: Star,
-    title: "5-Star Rating",
-    description: "Consistently rated 5 stars across all platforms - Fiverr, Upwork, and direct clients",
-    stat: "5.0/5.0",
-    color: "text-yellow-500"
-  },
-  {
-    icon: Users,
-    title: "Global Experience",
-    description: "Worked with clients from 50+ countries, understanding diverse market needs",
-    stat: "50+ Countries",
-    color: "text-blue-500"
-  },
-  {
-    icon: Heart,
-    title: "Unlimited Revisions",
-    description: "Your satisfaction is guaranteed - we'll revise until you're 100% happy",
-    stat: "∞ Revisions",
-    color: "text-pink-500"
-  },
-  {
-    icon: Award,
-    title: "Industry Expertise",
-    description: "Specialized knowledge in YouTube optimization, branding, and conversion design",
-    stat: "5+ Years",
-    color: "text-purple-500"
-  }
-]
+// Icon mapping
+const iconMap = {
+  Zap,
+  Trophy,
+  Star,
+  Users,
+  Heart,
+  Award,
+  Clock
+}
 
 export function WhyChooseSection() {
   const { getContent, loading } = useHomepageContent()
+
+  // Generate dynamic reasons from database content
+  const reasons = loading ? [
+    {
+      icon: Zap,
+      title: "Lightning Fast Delivery",
+      description: "Most projects delivered within 24-48 hours without compromising quality",
+      stat: "24-48h",
+      color: "text-yellow-500"
+    },
+    {
+      icon: Trophy,
+      title: "Proven Results",
+      description: "Designs that have generated millions in revenue and boosted client success",
+      stat: "500+ Projects",
+      color: "text-youtube-red"
+    },
+    {
+      icon: Star,
+      title: "5-Star Rating",
+      description: "Consistently rated 5 stars across all platforms - Fiverr, Upwork, and direct clients",
+      stat: "5.0/5.0",
+      color: "text-yellow-500"
+    },
+    {
+      icon: Users,
+      title: "Global Experience",
+      description: "Worked with clients from 50+ countries, understanding diverse market needs",
+      stat: "50+ Countries",
+      color: "text-blue-500"
+    },
+    {
+      icon: Heart,
+      title: "Unlimited Revisions",
+      description: "Your satisfaction is guaranteed - we'll revise until you're 100% happy",
+      stat: "∞ Revisions",
+      color: "text-pink-500"
+    },
+    {
+      icon: Award,
+      title: "Industry Expertise",
+      description: "Specialized knowledge in YouTube optimization, branding, and conversion design",
+      stat: "5+ Years",
+      color: "text-purple-500"
+    }
+  ] : [1, 2, 3, 4, 5, 6].map(num => {
+    const iconName = getContent('why_choose_reasons', `reason_${num}_icon`, 'Zap')
+    return {
+      icon: iconMap[iconName as keyof typeof iconMap] || Zap,
+      title: getContent('why_choose_reasons', `reason_${num}_title`, 'Feature Title'),
+      description: getContent('why_choose_reasons', `reason_${num}_description`, 'Feature description'),
+      stat: getContent('why_choose_reasons', `reason_${num}_stat`, 'Stat'),
+      color: getContent('why_choose_reasons', `reason_${num}_color`, 'text-gray-500')
+    }
+  })
 
   const achievements = [
     {
